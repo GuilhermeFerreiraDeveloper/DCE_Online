@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-navy-950 text-slate-200 font-sans antialiased;
+    background-image:
+      radial-gradient(1200px 600px at 15% -10%, rgba(29, 50, 82, 0.55), transparent 60%),
+      radial-gradient(900px 500px at 110% 0%, rgba(201, 162, 39, 0.08), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-wide;
+  }
+
+  ::selection {
+    background: rgba(201, 162, 39, 0.35);
+    color: #fff;
+  }
+
+  /* Scrollbar institucional */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a1628;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a3441;
+    border-radius: 6px;
+    border: 2px solid #0a1628;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a4657;
+  }
+}
+
+@layer components {
+  .dce-panel {
+    @apply rounded-lg border border-white/5 bg-graphite-800/70 shadow-panel backdrop-blur-sm;
+  }
+
+  .dce-input {
+    @apply w-full rounded-md border border-white/10 bg-navy-950/70 px-3 py-2.5 text-sm text-slate-100
+      placeholder:text-slate-500 outline-none transition
+      focus:border-gold-500/70 focus:ring-2 focus:ring-gold-500/20;
+  }
+
+  .dce-label {
+    @apply mb-1.5 block text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-slate-400;
+  }
+
+  .dce-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold
+      uppercase tracking-wide transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .dce-btn-primary {
+    @apply dce-btn bg-gold-500 text-navy-950 hover:bg-gold-400 hover:shadow-gold active:translate-y-px;
+  }
+  .dce-btn-secondary {
+    @apply dce-btn border border-white/10 bg-white/5 text-slate-200 hover:border-gold-500/40 hover:bg-white/10;
+  }
+  .dce-btn-ghost {
+    @apply dce-btn text-slate-300 hover:bg-white/5 hover:text-white;
+  }
+  .dce-btn-danger {
+    @apply dce-btn border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20;
+  }
+
+  .dce-tag {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider;
+  }
+
+  .dce-section-title {
+    @apply flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gold-400/90;
+  }
+
+  .dce-table {
+    @apply w-full border-collapse text-sm;
+  }
+  .dce-table thead th {
+    @apply border-b border-white/10 px-3 py-2 text-left text-[0.68rem] font-semibold uppercase tracking-wider text-slate-400;
+  }
+  .dce-table tbody td {
+    @apply border-b border-white/5 px-3 py-3 align-middle text-slate-200;
+  }
+  .dce-table tbody tr:hover {
+    @apply bg-white/[0.03];
+  }
+
+  .dce-grid-bg {
+    background-image: theme('backgroundImage.grid-tactical');
+    background-size: 44px 44px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .stagger-1 { animation-delay: 0.06s; }
+  .stagger-2 { animation-delay: 0.12s; }
+  .stagger-3 { animation-delay: 0.18s; }
+  .stagger-4 { animation-delay: 0.24s; }
+  .stagger-5 { animation-delay: 0.3s; }
+}
