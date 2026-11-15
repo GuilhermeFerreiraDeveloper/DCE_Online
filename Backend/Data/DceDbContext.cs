@@ -31,6 +31,7 @@ public class DceDbContext : DbContext
             e.Property(x => x.Email).HasColumnName("email").HasMaxLength(160).IsRequired();
             e.Property(x => x.SenhaHash).HasColumnName("senha_hash").HasMaxLength(255).IsRequired();
             e.Property(x => x.Patente).HasColumnName("patente").HasMaxLength(60).IsRequired();
+            e.Property(x => x.Departamento).HasColumnName("departamento").HasMaxLength(60).IsRequired();
             e.Property(x => x.NivelAcesso).HasColumnName("nivel_acesso").IsRequired();
             e.Property(x => x.StatusConta)
                 .HasColumnName("status_conta")

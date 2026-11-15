@@ -56,8 +56,12 @@ public class OficiaisController : ControllerBase
         var oficial = await _db.Oficiais.FindAsync(id)
             ?? throw AppException.NaoEncontrado("Cadastro não encontrado.");
 
+        if (!Departamentos.EhValido(req.Departamento))
+            throw AppException.Validacao("Departamento inválido.");
+
         oficial.StatusConta = StatusConta.Ativo;
         oficial.Patente = req.Patente.Trim();
+        oficial.Departamento = req.Departamento.Trim();
         oficial.NivelAcesso = req.NivelAcesso;
         oficial.AprovadoPor = OperadorId;
 

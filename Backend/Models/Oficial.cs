@@ -25,6 +25,10 @@ public class Oficial
     [Required, MaxLength(60)]
     public string Patente { get; set; } = "Recruta";
 
+    /// <summary>Departamento policial ao qual o oficial pertence (ver <see cref="Departamentos"/>).</summary>
+    [Required, MaxLength(60)]
+    public string Departamento { get; set; } = Departamentos.Dce;
+
     /// <summary>Nível hierárquico: 1 = Comando, 2 = Oficialidade, 3 = Praças.</summary>
     public int NivelAcesso { get; set; } = 3;
 

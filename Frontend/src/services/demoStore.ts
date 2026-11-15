@@ -128,6 +128,7 @@ export async function demoRegister(payload: {
   passaporte: string
   nome: string
   email: string
+  departamento: string
   senha: string
 }) {
   const passaporte = payload.passaporte.trim()
@@ -143,6 +144,7 @@ export async function demoRegister(payload: {
     nome: payload.nome.trim(),
     email,
     patente: 'Recruta',
+    departamento: payload.departamento,
     nivelAcesso: 3,
     statusConta: 'PENDENTE',
     aprovadoPor: null,
@@ -369,13 +371,14 @@ export async function demoListarPendentes(): Promise<Oficial[]> {
 
 export async function demoAprovarOficial(
   id: number,
-  dados: { patente: string; nivelAcesso: number },
+  dados: { patente: string; nivelAcesso: number; departamento: string },
   aprovador: { id: number; nome: string },
 ): Promise<Oficial | null> {
   const o = db.oficiais.find((x) => x.id === id)
   if (!o) return delay(null)
   o.statusConta = 'ATIVO'
   o.patente = dados.patente
+  o.departamento = dados.departamento
   o.nivelAcesso = dados.nivelAcesso as Oficial['nivelAcesso']
   o.aprovadoPor = aprovador.id
   registrarLog(aprovador, 'APROVACAO_CADASTRO', 'oficiais', id, `Aprovou ${o.nome} como ${o.patente} (Nível ${o.nivelAcesso}).`)

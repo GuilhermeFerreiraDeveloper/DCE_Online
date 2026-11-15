@@ -35,12 +35,24 @@ export const TODAS_PATENTES = [
   ...PATENTES_NIVEL_3,
 ] as const
 
+export const DEPARTAMENTOS = [
+  'Departamento de Polícia do Estado',
+  'Departamento de Polícia de Vinewood',
+  'Departamento de Polícia de Mission Row',
+  'Departamento de Polícia de La Mesa',
+  'Departamento de Polícia de Vespucci',
+  'Departamento de Polícia do Norte',
+  'Departamento de Polícia de Justiça',
+  'Departamento de Custódia do Estado',
+] as const
+
 export interface Oficial {
   id: number
   passaporte: string
   nome: string
   email: string
   patente: string
+  departamento: string
   nivelAcesso: NivelAcesso
   statusConta: StatusConta
   aprovadoPor: number | null

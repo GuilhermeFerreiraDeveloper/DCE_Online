@@ -54,6 +54,9 @@ public class AuthService
         if (await _db.Oficiais.AnyAsync(o => o.Email.ToLower() == email))
             throw AppException.Conflito("Já existe uma solicitação com este E-mail.");
 
+        if (!Departamentos.EhValido(req.Departamento))
+            throw AppException.Validacao("Departamento inválido.");
+
         _db.Oficiais.Add(new Oficial
         {
             Passaporte = passaporte,
@@ -61,6 +64,7 @@ public class AuthService
             Email = email,
             SenhaHash = BCrypt.Net.BCrypt.HashPassword(req.Senha),
             Patente = "Recruta",
+            Departamento = req.Departamento.Trim(),
             NivelAcesso = 3,
             StatusConta = StatusConta.Pendente,
         });

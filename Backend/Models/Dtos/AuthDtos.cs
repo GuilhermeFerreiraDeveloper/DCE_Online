@@ -23,6 +23,10 @@ public class RegisterRequest
     [Required, EmailAddress, MaxLength(160)]
     public string Email { get; set; } = string.Empty;
 
+    /// <summary>Departamento pretendido (ver <see cref="Models.Departamentos"/>).</summary>
+    [Required, MaxLength(60)]
+    public string Departamento { get; set; } = string.Empty;
+
     [Required, MinLength(6)]
     public string Senha { get; set; } = string.Empty;
 }

@@ -6,7 +6,7 @@ import { EmptyState, InlineError, Spinner } from '@/components/ui/Feedback'
 import { StatusContaBadge } from '@/components/ui/Badges'
 import { dceApi } from '@/services/api'
 import { useAuthStore } from '@/store/auth'
-import { PATENTES_NIVEL_1, PATENTES_NIVEL_2, PATENTES_NIVEL_3, type NivelAcesso, type Oficial } from '@/types'
+import { DEPARTAMENTOS, PATENTES_NIVEL_1, PATENTES_NIVEL_2, PATENTES_NIVEL_3, type NivelAcesso, type Oficial } from '@/types'
 import { iniciais } from '@/utils/format'
 
 function patentesPorNivel(nivel: NivelAcesso): readonly string[] {
@@ -27,6 +27,7 @@ export default function Oficiais() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const [busca, setBusca] = useState('')
+  const [filtroDepto, setFiltroDepto] = useState('')
   const [editando, setEditando] = useState<Oficial | null>(null)
   const [nivel, setNivel] = useState<NivelAcesso>(3)
   const [patente, setPatente] = useState<string>('')
@@ -91,10 +92,11 @@ export default function Oficiais() {
   const termo = busca.trim().toLowerCase()
   const filtrados = oficiais.filter(
     (o) =>
-      !termo ||
-      o.nome.toLowerCase().includes(termo) ||
-      o.passaporte.includes(termo) ||
-      o.email.toLowerCase().includes(termo),
+      (!filtroDepto || o.departamento === filtroDepto) &&
+      (!termo ||
+        o.nome.toLowerCase().includes(termo) ||
+        o.passaporte.includes(termo) ||
+        o.email.toLowerCase().includes(termo)),
   )
 
   return (
@@ -109,13 +111,21 @@ export default function Oficiais() {
         </p>
       </header>
 
-      <div className="dce-panel p-3">
+      <div className="dce-panel grid gap-3 p-3 sm:grid-cols-2">
         <input
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           className="dce-input"
           placeholder="Buscar por nome, passaporte ou e-mail..."
         />
+        <select value={filtroDepto} onChange={(e) => setFiltroDepto(e.target.value)} className="dce-input">
+          <option value="">Todos os departamentos</option>
+          {DEPARTAMENTOS.map((d) => (
+            <option key={d} value={d}>
+              {d}
+            </option>
+          ))}
+        </select>
       </div>
 
       {erro && <InlineError>{erro}</InlineError>}
@@ -127,12 +137,13 @@ export default function Oficiais() {
       ) : (
         <div className="dce-panel overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="dce-table min-w-[720px]">
+            <table className="dce-table min-w-[880px]">
               <thead>
                 <tr>
                   <th>Oficial</th>
                   <th>Passaporte</th>
                   <th>Patente</th>
+                  <th>Departamento</th>
                   <th>Nível</th>
                   <th>Status</th>
                   <th className="text-right">Ações</th>
@@ -154,6 +165,7 @@ export default function Oficiais() {
                     </td>
                     <td className="font-mono text-slate-300">{o.passaporte}</td>
                     <td className="text-slate-200">{o.patente}</td>
+                    <td className="text-slate-300">{o.departamento}</td>
                     <td>
                       <span className="dce-tag border-white/10 bg-white/5 text-slate-300">
                         N{o.nivelAcesso} · {NIVEL_LABEL[o.nivelAcesso]}

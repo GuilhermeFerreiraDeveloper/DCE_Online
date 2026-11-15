@@ -6,9 +6,17 @@ import { DemoBanner } from '@/components/layout/DemoBanner'
 import { Field } from '@/components/ui/Field'
 import { InlineError, InlineSuccess } from '@/components/ui/Feedback'
 import { dceApi } from '@/services/api'
+import { DEPARTAMENTOS } from '@/types'
 
 export default function Cadastro() {
-  const [form, setForm] = useState({ passaporte: '', nome: '', email: '', senha: '', confirmar: '' })
+  const [form, setForm] = useState({
+    passaporte: '',
+    nome: '',
+    email: '',
+    departamento: DEPARTAMENTOS[0] as string,
+    senha: '',
+    confirmar: '',
+  })
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(false)
   const [enviando, setEnviando] = useState(false)
@@ -27,6 +35,7 @@ export default function Cadastro() {
         passaporte: form.passaporte,
         nome: form.nome,
         email: form.email,
+        departamento: form.departamento,
         senha: form.senha,
       })
       setSucesso(true)
@@ -106,6 +115,21 @@ export default function Cadastro() {
                     required
                   />
                 </div>
+              </Field>
+
+              <Field label="Departamento Pretendido">
+                <select
+                  value={form.departamento}
+                  onChange={(e) => setForm((f) => ({ ...f, departamento: e.target.value }))}
+                  className="dce-input"
+                  required
+                >
+                  {DEPARTAMENTOS.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
               </Field>
 
               <div className="grid gap-4 sm:grid-cols-2">

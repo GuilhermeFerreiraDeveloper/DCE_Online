@@ -78,6 +78,7 @@ export const dceApi = {
     passaporte: string
     nome: string
     email: string
+    departamento: string
     senha: string
   }): Promise<{ ok: boolean }> =>
     withFallback(
@@ -176,7 +177,7 @@ export const dceApi = {
 
   aprovarOficial: (
     id: number,
-    dados: { patente: string; nivelAcesso: number },
+    dados: { patente: string; nivelAcesso: number; departamento: string },
     aprovador: { id: number; nome: string },
   ): Promise<Oficial | null> =>
     withFallback(

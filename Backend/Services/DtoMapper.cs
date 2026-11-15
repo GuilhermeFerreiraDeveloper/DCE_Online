@@ -13,6 +13,7 @@ public static class DtoMapper
         Nome = o.Nome,
         Email = o.Email,
         Patente = o.Patente,
+        Departamento = o.Departamento,
         NivelAcesso = o.NivelAcesso,
         StatusConta = o.StatusConta,
         AprovadoPor = o.AprovadoPor,

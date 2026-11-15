@@ -27,6 +27,7 @@ public static class DbSeeder
                     Email = "comando@dce.gov",
                     SenhaHash = Hash(SenhaPadrao),
                     Patente = "Diretor Geral",
+                    Departamento = Departamentos.Dce,
                     NivelAcesso = 1,
                     StatusConta = StatusConta.Ativo,
                 },
@@ -37,6 +38,7 @@ public static class DbSeeder
                     Email = "supervisor@dce.gov",
                     SenhaHash = Hash(SenhaPadrao),
                     Patente = "Capitão",
+                    Departamento = Departamentos.Dce,
                     NivelAcesso = 2,
                     StatusConta = StatusConta.Ativo,
                 },
@@ -47,6 +49,7 @@ public static class DbSeeder
                     Email = "agente@dce.gov",
                     SenhaHash = Hash(SenhaPadrao),
                     Patente = "2º Soldado",
+                    Departamento = Departamentos.Dce,
                     NivelAcesso = 3,
                     StatusConta = StatusConta.Ativo,
                 });

@@ -6,7 +6,7 @@ import { EmptyState, InlineError, Spinner } from '@/components/ui/Feedback'
 import { StatusContaBadge } from '@/components/ui/Badges'
 import { dceApi } from '@/services/api'
 import { useAuthStore } from '@/store/auth'
-import { PATENTES_NIVEL_1, PATENTES_NIVEL_2, PATENTES_NIVEL_3, type NivelAcesso, type Oficial } from '@/types'
+import { DEPARTAMENTOS, PATENTES_NIVEL_1, PATENTES_NIVEL_2, PATENTES_NIVEL_3, type NivelAcesso, type Oficial } from '@/types'
 import { formatDateTime } from '@/utils/format'
 
 function patentesPorNivel(nivel: NivelAcesso): readonly string[] {
@@ -23,6 +23,7 @@ export default function Aprovacoes() {
   const [selecionado, setSelecionado] = useState<Oficial | null>(null)
   const [nivel, setNivel] = useState<NivelAcesso>(3)
   const [patente, setPatente] = useState<string>(PATENTES_NIVEL_3[0])
+  const [departamento, setDepartamento] = useState<string>(DEPARTAMENTOS[0])
   const [processando, setProcessando] = useState(false)
 
   const carregar = useCallback(async () => {
@@ -48,13 +49,18 @@ export default function Aprovacoes() {
     setSelecionado(o)
     setNivel(3)
     setPatente(PATENTES_NIVEL_3[0])
+    setDepartamento(o.departamento || DEPARTAMENTOS[0])
   }
 
   const aprovar = async () => {
     if (!selecionado || !aprovador) return
     setProcessando(true)
     try {
-      await dceApi.aprovarOficial(selecionado.id, { patente, nivelAcesso: nivel }, { id: aprovador.id, nome: aprovador.nome })
+      await dceApi.aprovarOficial(
+        selecionado.id,
+        { patente, nivelAcesso: nivel, departamento },
+        { id: aprovador.id, nome: aprovador.nome },
+      )
       setSelecionado(null)
       await carregar()
     } catch {
@@ -149,6 +155,15 @@ export default function Aprovacoes() {
               {patentesPorNivel(nivel).map((p) => (
                 <option key={p} value={p}>
                   {p}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Departamento">
+            <select value={departamento} onChange={(e) => setDepartamento(e.target.value)} className="dce-input">
+              {DEPARTAMENTOS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
                 </option>
               ))}
             </select>

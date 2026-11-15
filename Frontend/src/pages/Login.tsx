@@ -7,12 +7,6 @@ import { Field } from '@/components/ui/Field'
 import { InlineError } from '@/components/ui/Feedback'
 import { useAuthStore } from '@/store/auth'
 
-const CONTAS_DEMO = [
-  { papel: 'Comando (Nível 1)', id: '1001', senha: 'dce12345', email: 'comando@dce.gov' },
-  { papel: 'Supervisão (Nível 2)', id: '1002', senha: 'dce12345', email: 'supervisor@dce.gov' },
-  { papel: 'Praças (Nível 3)', id: '1003', senha: 'dce12345', email: 'agente@dce.gov' },
-]
-
 export default function Login() {
   const [identificador, setIdentificador] = useState('')
   const [senha, setSenha] = useState('')
@@ -32,12 +26,6 @@ export default function Login() {
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Falha ao autenticar.')
     }
-  }
-
-  const usarDemo = (conta: (typeof CONTAS_DEMO)[number]) => {
-    setIdentificador(conta.email)
-    setSenha(conta.senha)
-    setErro('')
   }
 
   return (
@@ -106,25 +94,6 @@ export default function Login() {
               Solicitar cadastro
             </Link>
           </p>
-
-          <div className="mt-6 rounded-md border border-white/10 bg-white/[0.02] p-3">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-wider text-slate-400">
-              Contas de demonstração (senha: dce12345)
-            </p>
-            <div className="mt-2 grid gap-1.5">
-              {CONTAS_DEMO.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => usarDemo(c)}
-                  className="flex items-center justify-between rounded border border-white/5 bg-navy-950/60 px-3 py-2 text-left text-xs transition hover:border-gold-500/30"
-                >
-                  <span className="text-slate-300">{c.papel}</span>
-                  <span className="font-mono text-gold-300">{c.email}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </main>
     </div>

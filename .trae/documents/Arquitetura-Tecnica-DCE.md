@@ -64,7 +64,7 @@ type LoginRequest  = { identificador: string; senha: string }        // e-mail O
 type LoginResponse = { token: string; oficial: OficialDTO }
 
 // POST /api/auth/register
-type RegisterRequest = { passaporte: string; nome: string; email: string; senha: string }
+type RegisterRequest = { passaporte: string; nome: string; email: string; departamento: string; senha: string }
 
 // GET /api/auth/me  -> OficialDTO
 ```
@@ -85,7 +85,7 @@ type FichaPublicaResponse = {
 ```ts
 GET    /api/oficiais                      // lista todos
 GET    /api/oficiais/pendentes            // cadastros PENDENTE
-POST   /api/oficiais/{id}/aprovar         // { patente, nivelAcesso }
+POST   /api/oficiais/{id}/aprovar         // { patente, departamento, nivelAcesso }
 POST   /api/oficiais/{id}/recusar
 PUT    /api/oficiais/{id}                 // { patente?, nivelAcesso?, statusConta? }
 DELETE /api/oficiais/{id}
@@ -156,6 +156,7 @@ erDiagram
         string email
         string senha_hash
         string patente
+        string departamento
         int nivel_acesso
         string status_conta
         int aprovado_por
@@ -215,6 +216,7 @@ CREATE TABLE oficiais (
   email         VARCHAR(160) UNIQUE NOT NULL,
   senha_hash    VARCHAR(255) NOT NULL,
   patente       VARCHAR(60)  NOT NULL DEFAULT 'Recruta',
+  departamento  VARCHAR(60)  NOT NULL DEFAULT 'Departamento de Custódia do Estado',
   nivel_acesso  SMALLINT     NOT NULL DEFAULT 3 CHECK (nivel_acesso IN (1,2,3)),
   status_conta  VARCHAR(20)  NOT NULL DEFAULT 'PENDENTE'
                 CHECK (status_conta IN ('PENDENTE','ATIVO','BLOQUEADO')),

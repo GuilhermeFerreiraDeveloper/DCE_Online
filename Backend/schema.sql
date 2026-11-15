@@ -25,12 +25,18 @@ CREATE TABLE IF NOT EXISTS oficiais (
     email         VARCHAR(160) UNIQUE NOT NULL,
     senha_hash    VARCHAR(255) NOT NULL,
     patente       VARCHAR(60)  NOT NULL DEFAULT 'Recruta',
+    departamento  VARCHAR(60)  NOT NULL DEFAULT 'Departamento de Custódia do Estado',
     nivel_acesso  SMALLINT     NOT NULL DEFAULT 3 CHECK (nivel_acesso IN (1, 2, 3)),
     status_conta  VARCHAR(20)  NOT NULL DEFAULT 'PENDENTE'
                   CHECK (status_conta IN ('PENDENTE', 'ATIVO', 'BLOQUEADO')),
     aprovado_por  INTEGER      REFERENCES oficiais(id) ON DELETE SET NULL,
     criado_em     TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
+
+-- Atualização idempotente para bancos criados antes do campo "departamento".
+ALTER TABLE oficiais
+    ADD COLUMN IF NOT EXISTS departamento VARCHAR(60) NOT NULL
+    DEFAULT 'Departamento de Custódia do Estado';
 
 CREATE INDEX IF NOT EXISTS ix_oficiais_nivel   ON oficiais (nivel_acesso);
 CREATE INDEX IF NOT EXISTS ix_oficiais_status  ON oficiais (status_conta);
@@ -134,13 +140,17 @@ ON CONFLICT (id) DO NOTHING;
 --  SEED — Oficiais (senha padrão de todos: dce12345)
 --  O hash é gerado com pgcrypto (compatível com BCrypt.Net-Next / $2a$).
 -- ============================================================================
-INSERT INTO oficiais (id, passaporte, nome, email, senha_hash, patente, nivel_acesso, status_conta, aprovado_por) VALUES
- (1, '1001', 'Ricardo Salles', 'comando@dce.gov',    crypt('dce12345', gen_salt('bf', 10)), 'Diretor Geral', 1, 'ATIVO',     NULL),
- (2, '1002', 'Helena Braga',   'supervisor@dce.gov', crypt('dce12345', gen_salt('bf', 10)), 'Capitão',       2, 'ATIVO',     1),
- (3, '1003', 'Marcos Vieira',  'agente@dce.gov',     crypt('dce12345', gen_salt('bf', 10)), '2º Soldado',    3, 'ATIVO',     2),
- (4, '1004', 'Julia Prado',    'recruta@dce.gov',    crypt('dce12345', gen_salt('bf', 10)), 'Recruta',       3, 'PENDENTE',  NULL),
- (5, '1005', 'Caio Mendonça',  'bloqueado@dce.gov',  crypt('dce12345', gen_salt('bf', 10)), 'Cabo',          3, 'BLOQUEADO', 1)
+INSERT INTO oficiais (id, passaporte, nome, email, senha_hash, patente, departamento, nivel_acesso, status_conta, aprovado_por) VALUES
+ (1, '1001', 'Ricardo Salles', 'comando@dce.gov',    crypt('dce12345', gen_salt('bf', 10)), 'Diretor Geral', 'Departamento de Custódia do Estado',     1, 'ATIVO',     NULL),
+ (2, '1002', 'Helena Braga',   'supervisor@dce.gov', crypt('dce12345', gen_salt('bf', 10)), 'Capitão',       'Departamento de Custódia do Estado',     2, 'ATIVO',     1),
+ (3, '1003', 'Marcos Vieira',  'agente@dce.gov',     crypt('dce12345', gen_salt('bf', 10)), '2º Soldado',    'Departamento de Custódia do Estado',     3, 'ATIVO',     2),
+ (4, '1004', 'Julia Prado',    'recruta@dce.gov',    crypt('dce12345', gen_salt('bf', 10)), 'Recruta',       'Departamento de Polícia do Estado',      3, 'PENDENTE',  NULL),
+ (5, '1005', 'Caio Mendonça',  'bloqueado@dce.gov',  crypt('dce12345', gen_salt('bf', 10)), 'Cabo',          'Departamento de Polícia de Vinewood',    3, 'BLOQUEADO', 1)
 ON CONFLICT (id) DO NOTHING;
+
+-- Garante o departamento nos registros de exemplo criados antes deste campo.
+UPDATE oficiais SET departamento = 'Departamento de Custódia do Estado'
+ WHERE id IN (1, 2, 3) AND (departamento IS NULL OR departamento = '');
 
 -- ============================================================================
 --  SEED — Detentos de exemplo (para a consulta pública já exibir resultados)
