@@ -96,3 +96,42 @@ public class VerificacaoPassaporteDto
     public StatusPrisao? StatusPrisao { get; set; }
     public DateTime? UltimaEntrada { get; set; }
 }
+
+/// <summary>Resumo de um artigo no histórico de prisões do detento.</summary>
+public class ArtigoResumoDto
+{
+    public string Artigo { get; set; } = string.Empty;
+    public string Crime { get; set; } = string.Empty;
+    public int Ocorrencias { get; set; }
+}
+
+/// <summary>Ficha resumida para a linha do tempo de prisões.</summary>
+public class FichaResumoDto
+{
+    public int Id { get; set; }
+    public int NumeroPrisioneiro { get; set; }
+    public string NomeDetento { get; set; } = string.Empty;
+    public string PassaporteDetento { get; set; } = string.Empty;
+    public DateTime DataEntrada { get; set; }
+    public StatusPrisao StatusPrisao { get; set; }
+    public int TempoTotalMeses { get; set; }
+    public decimal ValorMultaTotal { get; set; }
+    public bool ExigeTornozeleira { get; set; }
+    public bool PermiteFianca { get; set; }
+    public string? PolicialCondutor { get; set; }
+    public string? OficialRegistrouNome { get; set; }
+    public List<string> Artigos { get; set; } = new();
+    public List<string> Crimes { get; set; } = new();
+}
+
+/// <summary>Histórico completo de prisões de um detento (por passaporte) com resumo.</summary>
+public class HistoricoFichasDto
+{
+    public string NomeDetento { get; set; } = string.Empty;
+    public string PassaporteDetento { get; set; } = string.Empty;
+    public int TotalFichas { get; set; }
+    public int TotalMesesPena { get; set; }
+    public decimal TotalMultas { get; set; }
+    public List<ArtigoResumoDto> Artigos { get; set; } = new();
+    public List<FichaResumoDto> Fichas { get; set; } = new();
+}

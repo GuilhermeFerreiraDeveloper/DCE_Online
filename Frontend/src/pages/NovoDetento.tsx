@@ -245,7 +245,8 @@ export default function NovoDetento() {
                       </p>
                       <p className="mt-0.5 text-amber-200/80">
                         Cidadão com histórico anterior. Nome e mugshot preenchidos automaticamente — revise antes de
-                        registrar.
+                        registrar. Esta será a{' '}
+                        <strong className="text-amber-100">{verificacao.totalPassagens + 1}ª prisão</strong>.
                       </p>
                     </div>
                   </div>

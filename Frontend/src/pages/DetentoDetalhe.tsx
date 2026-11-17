@@ -6,6 +6,7 @@ import {
   CalendarClock,
   CircleDollarSign,
   Gavel,
+  History,
   Pencil,
   ScrollText,
   Trash2,
@@ -27,10 +28,10 @@ import { EditarFichaModal } from '@/components/detento/EditarFichaModal'
 import { TimelineDisciplinar } from '@/components/detento/TimelineDisciplinar'
 import { dceApi } from '@/services/api'
 import { useAuthStore } from '@/store/auth'
-import type { Detento, HistoricoComportamento } from '@/types'
+import type { Detento, HistoricoComportamento, HistoricoFichas } from '@/types'
 import { formatBRL, formatDateTime, iniciais, mesesParaTexto, tempoRestante } from '@/utils/format'
 
-type Aba = 'ficha' | 'timeline'
+type Aba = 'ficha' | 'timeline' | 'historico'
 
 export default function DetentoDetalhe() {
   const { id } = useParams<{ id: string }>()
@@ -39,6 +40,7 @@ export default function DetentoDetalhe() {
 
   const [detento, setDetento] = useState<Detento | null>(null)
   const [historico, setHistorico] = useState<HistoricoComportamento[]>([])
+  const [historicoFichas, setHistoricoFichas] = useState<HistoricoFichas | null>(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const [aba, setAba] = useState<Aba>('ficha')
@@ -65,6 +67,8 @@ export default function DetentoDetalhe() {
       }
       setDetento(d)
       setHistorico(h)
+      const hist = await dceApi.historicoFichas(d.passaporteDetento)
+      setHistoricoFichas(hist)
     } catch {
       setErro('Não foi possível carregar a ficha.')
     } finally {
@@ -163,10 +167,11 @@ export default function DetentoDetalhe() {
       </div>
 
       {/* Abas */}
-      <div className="flex gap-1 border-b border-white/10">
+      <div className="flex flex-wrap gap-1 border-b border-white/10">
         {(
           [
             { v: 'ficha', label: 'Ficha do Detento', icon: UserRound },
+            { v: 'historico', label: `Histórico de Prisões (${historicoFichas?.totalFichas ?? 1})`, icon: History },
             { v: 'timeline', label: `Linha do Tempo (${historico.length})`, icon: ScrollText },
           ] as const
         ).map((t) => (
@@ -247,6 +252,8 @@ export default function DetentoDetalhe() {
             )}
           </section>
         </div>
+      ) : aba === 'historico' ? (
+        <HistoricoPrisoes historico={historicoFichas} idAtual={detento.id} />
       ) : (
         <section className="dce-panel p-5">
           <p className="dce-section-title mb-5">Linha do Tempo Disciplinar</p>
@@ -320,6 +327,138 @@ function Info({ label, valor }: { label: string; valor: string }) {
     <div>
       <dt className="text-[0.68rem] uppercase tracking-wider text-slate-500">{label}</dt>
       <dd className="mt-0.5 text-sm text-slate-200">{valor}</dd>
+    </div>
+  )
+}
+
+function HistoricoPrisoes({ historico, idAtual }: { historico: HistoricoFichas | null; idAtual: number }) {
+  if (!historico || historico.fichas.length === 0) {
+    return (
+      <section className="dce-panel p-8">
+        <EmptyState titulo="Nenhuma ficha encontrada" descricao="Não há registros de prisão para este passaporte." />
+      </section>
+    )
+  }
+
+  const textoResumo = `${historico.totalFichas} ${historico.totalFichas === 1 ? 'vez preso' : 'vezes preso'}${
+    historico.artigos.length > 0 ? ' por ' : ''
+  }${historico.artigos.map((a) => `${a.artigo}${a.ocorrencias > 1 ? ` (${a.ocorrencias}x)` : ''}`).join(', ')}`
+
+  return (
+    <div className="space-y-6">
+      {/* Resumo */}
+      <section className="dce-panel p-5">
+        <p className="dce-section-title mb-3">Resumo do Detento</p>
+        <p className="font-display text-lg text-gold-300">{textoResumo}</p>
+        {historico.artigos.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {historico.artigos.map((a) => (
+              <span
+                key={a.artigo}
+                className="rounded-md border border-white/10 bg-navy-900/60 px-3 py-1.5 text-xs"
+                title={a.crime}
+              >
+                <span className="font-mono text-gold-300">{a.artigo}</span>{' '}
+                <span className="text-slate-400">
+                  {a.ocorrencias}x · {a.crime}
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-lg border border-white/5 bg-navy-950/40 p-3">
+            <p className="text-[0.68rem] uppercase tracking-wider text-slate-500">Total de Prisões</p>
+            <p className="mt-0.5 font-display text-xl text-white">{historico.totalFichas}</p>
+          </div>
+          <div className="rounded-lg border border-white/5 bg-navy-950/40 p-3">
+            <p className="text-[0.68rem] uppercase tracking-wider text-slate-500">Pena Total Acumulada</p>
+            <p className="mt-0.5 font-display text-xl text-white">{mesesParaTexto(historico.totalMesesPena)}</p>
+          </div>
+          <div className="rounded-lg border border-white/5 bg-navy-950/40 p-3">
+            <p className="text-[0.68rem] uppercase tracking-wider text-slate-500">Multas Acumuladas</p>
+            <p className="mt-0.5 font-display text-xl text-white">{formatBRL(historico.totalMultas)}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Lista de prisões */}
+      <section className="dce-panel overflow-hidden">
+        <div className="border-b border-white/5 px-5 py-4">
+          <p className="dce-section-title">Registro de Prisões</p>
+        </div>
+        <div className="divide-y divide-white/5">
+          {historico.fichas.map((f) => {
+            const ehAtual = f.id === idAtual
+            return (
+              <div
+                key={f.id}
+                className={`flex flex-col gap-3 p-5 sm:flex-row sm:items-start ${
+                  ehAtual ? 'bg-gold-500/5' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3 sm:w-40 sm:shrink-0">
+                  <div
+                    className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border font-display text-sm ${
+                      ehAtual
+                        ? 'border-gold-500 bg-gold-500/10 text-gold-300'
+                        : 'border-white/10 bg-navy-900/60 text-slate-300'
+                    }`}
+                  >
+                    {f.numeroPrisioneiro}ª
+                  </div>
+                  <div className="sm:hidden">
+                    <p className="font-display text-white">
+                      {f.numeroPrisioneiro}ª Prisão
+                      {ehAtual && <span className="ml-2 text-xs text-gold-400">· atual</span>}
+                    </p>
+                    <p className="text-xs text-slate-500">{formatDateTime(f.dataEntrada)}</p>
+                  </div>
+                </div>
+
+                <div className="hidden sm:block sm:w-40 sm:shrink-0">
+                  <p className="font-display text-white">
+                    {f.numeroPrisioneiro}ª Prisão
+                    {ehAtual && <span className="ml-2 text-xs text-gold-400">· atual</span>}
+                  </p>
+                  <p className="text-xs text-slate-500">{formatDateTime(f.dataEntrada)}</p>
+                </div>
+
+                <div className="flex-1 space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <StatusPrisaoBadge status={f.statusPrisao} />
+                    {f.exigeTornozeleira && <TornozeleiraTag />}
+                    {!f.permiteFianca && <FiancaTag permite={false} />}
+                  </div>
+                  <p className="text-sm text-slate-300">
+                    <span className="text-slate-500">Crimes:</span>{' '}
+                    {f.crimes.length > 0 ? f.crimes.join(', ') : '—'}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {f.artigos.length > 0 && (
+                      <span className="font-mono text-gold-300/80">{f.artigos.join(', ')}</span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex gap-4 text-xs text-slate-400 sm:flex-col sm:items-end sm:gap-1">
+                  <span>
+                    Pena: <span className="text-slate-200">{mesesParaTexto(f.tempoTotalMeses)}</span>
+                  </span>
+                  <span>
+                    Multa: <span className="text-slate-200">{formatBRL(f.valorMultaTotal)}</span>
+                  </span>
+                  {f.policialCondutor && (
+                    <span className="truncate sm:max-w-[180px]" title={f.policialCondutor}>
+                      {f.policialCondutor}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
     </div>
   )
 }

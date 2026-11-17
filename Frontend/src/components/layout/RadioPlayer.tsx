@@ -38,6 +38,9 @@ export function RadioPlayer() {
   const [atual, setAtual] = useState(0)
   const [duracao, setDuracao] = useState(0)
   const falhasRef = useRef<Set<number>>(new Set())
+  // Garante que a próxima faixa toque mesmo que o estado `tocando` tenha sido
+  // reiniciado por um `onPause` disparado junto com o `onEnded` em alguns navegadores.
+  const autoAvancoRef = useRef(false)
 
   const faixa = PLAYLIST[indice]
 
@@ -90,14 +93,20 @@ export function RadioPlayer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Ao trocar de faixa, recarrega a origem e retoma a reprodução se estava tocando.
+  // Ao trocar de faixa, recarrega a origem e retoma a reprodução se estava tocando
+  // ou se o avanço foi automático (fim da faixa anterior).
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
     setAtual(0)
     setDuracao(0)
-    if (tocando) {
-      audio.play().catch(() => setTocando(false))
+    const tocar = autoAvancoRef.current || tocando
+    autoAvancoRef.current = false
+    if (tocar) {
+      audio
+        .play()
+        .then(() => setTocando(true))
+        .catch(() => setTocando(false))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indice])
@@ -120,6 +129,16 @@ export function RadioPlayer() {
   const faixaAnterior = () => setIndice((i) => (i - 1 + PLAYLIST.length) % PLAYLIST.length)
   const proximaFaixa = () => setIndice((i) => (i + 1) % PLAYLIST.length)
 
+  /**
+   * Fim de faixa: marca o avanço como automático (para forçar o autoplay mesmo
+   * que um `onPause` tenha zerado `tocando`) e passa para a próxima, voltando à
+   * primeira após a última — playlist em loop contínuo.
+   */
+  const aoTerminarFaixa = () => {
+    autoAvancoRef.current = true
+    setIndice((i) => (i + 1) % PLAYLIST.length)
+  }
+
   /** Se um arquivo falhar, pula automaticamente; só exibe erro se todos falharem. */
   const aoErro = () => {
     falhasRef.current.add(indice)
@@ -134,6 +153,7 @@ export function RadioPlayer() {
       proximo = (proximo + 1) % PLAYLIST.length
       guarda++
     }
+    autoAvancoRef.current = true
     setIndice(proximo)
   }
 
@@ -147,7 +167,7 @@ export function RadioPlayer() {
         preload="auto"
         onPlay={() => setTocando(true)}
         onPause={() => setTocando(false)}
-        onEnded={proximaFaixa}
+        onEnded={aoTerminarFaixa}
         onTimeUpdate={(e) => setAtual(e.currentTarget.currentTime)}
         onLoadedMetadata={(e) => setDuracao(e.currentTarget.duration)}
         onError={aoErro}

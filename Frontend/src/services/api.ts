@@ -4,6 +4,7 @@ import type {
   Estatisticas,
   FichaPublica,
   HistoricoComportamento,
+  HistoricoFichas,
   LogAuditoria,
   LoginResponse,
   NivelPericulosidade,
@@ -126,6 +127,12 @@ export const dceApi = {
     withFallback(
       () => http<VerificacaoPassaporte>(`/detentos/verificar-passaporte/${encodeURIComponent(passaporte)}`),
       () => demo.demoVerificarPassaporte(passaporte),
+    ),
+
+  historicoFichas: (passaporte: string): Promise<HistoricoFichas | null> =>
+    withFallback(
+      () => http<HistoricoFichas>(`/detentos/passaporte/${encodeURIComponent(passaporte)}/historico`),
+      () => demo.demoHistoricoFichas(passaporte),
     ),
 
   criarDetento: (

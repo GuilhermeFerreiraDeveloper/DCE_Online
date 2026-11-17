@@ -35,6 +35,14 @@ public class DetentosController : ControllerBase
     public async Task<ActionResult<VerificacaoPassaporteDto>> VerificarPassaporte(string passaporte)
         => Ok(await _svc.VerificarPassaporteAsync(passaporte));
 
+    /// <summary>Histórico completo de prisões de um detento (todas as fichas por passaporte) com resumo.</summary>
+    [HttpGet("passaporte/{passaporte}/historico")]
+    public async Task<ActionResult<HistoricoFichasDto>> HistoricoPorPassaporte(string passaporte)
+    {
+        var dto = await _svc.HistoricoPorPassaporteAsync(passaporte);
+        return dto is null ? NotFound() : Ok(dto);
+    }
+
     /// <summary>Registra a entrada de um detento (cálculo dos totais no servidor).</summary>
     [HttpPost]
     public async Task<ActionResult<DetentoDto>> Criar([FromBody] CriarDetentoRequest req)

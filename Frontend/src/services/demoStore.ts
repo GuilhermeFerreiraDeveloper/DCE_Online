@@ -4,6 +4,7 @@ import type {
   Estatisticas,
   FichaPublica,
   HistoricoComportamento,
+  HistoricoFichas,
   LogAuditoria,
   NivelPericulosidade,
   Oficial,
@@ -238,6 +239,56 @@ export async function demoVerificarPassaporte(passaporte: string): Promise<Verif
     ultimaFichaId: atual.id,
     statusPrisao: atual.statusPrisao,
     ultimaEntrada: atual.dataEntrada,
+  })
+}
+
+export async function demoHistoricoFichas(passaporte: string): Promise<HistoricoFichas | null> {
+  const fichas = db.detentos
+    .filter((d) => d.passaporteDetento === passaporte.trim())
+    .sort((a, b) => +new Date(a.dataEntrada) - +new Date(b.dataEntrada))
+
+  if (fichas.length === 0) return delay(null)
+
+  const contagem = new Map<string, { artigo: string; crime: string; ocorrencias: number }>()
+  for (const f of fichas) {
+    for (const c of f.crimesCometidos) {
+      const atual = contagem.get(c.artigo)
+      if (atual) {
+        atual.ocorrencias += 1
+      } else {
+        contagem.set(c.artigo, { artigo: c.artigo, crime: c.crime, ocorrencias: 1 })
+      }
+    }
+  }
+
+  const artigos = [...contagem.values()].sort((a, b) => b.ocorrencias - a.ocorrencias)
+  const lista = fichas
+    .map((f, i) => ({
+      id: f.id,
+      numeroPrisioneiro: i + 1,
+      nomeDetento: f.nomeDetento,
+      passaporteDetento: f.passaporteDetento,
+      dataEntrada: f.dataEntrada,
+      statusPrisao: f.statusPrisao,
+      tempoTotalMeses: f.tempoTotalMeses,
+      valorMultaTotal: f.valorMultaTotal,
+      exigeTornozeleira: f.exigeTornozeleira,
+      permiteFianca: f.permiteFianca,
+      policialCondutor: f.policialCondutor,
+      oficialRegistrouNome: nomeOficial(f.oficialRegistrouId ?? null),
+      artigos: f.crimesCometidos.map((c) => c.artigo),
+      crimes: f.crimesCometidos.map((c) => c.crime),
+    }))
+    .sort((a, b) => +new Date(b.dataEntrada) - +new Date(a.dataEntrada))
+
+  return delay({
+    nomeDetento: fichas[0].nomeDetento,
+    passaporteDetento: passaporte.trim(),
+    totalFichas: fichas.length,
+    totalMesesPena: fichas.reduce((acc, f) => acc + f.tempoTotalMeses, 0),
+    totalMultas: fichas.reduce((acc, f) => acc + f.valorMultaTotal, 0),
+    artigos,
+    fichas: lista,
   })
 }
 

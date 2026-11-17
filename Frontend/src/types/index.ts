@@ -183,6 +183,39 @@ export interface VerificacaoPassaporte {
   ultimaEntrada?: string | null
 }
 
+export interface ArtigoResumo {
+  artigo: string
+  crime: string
+  ocorrencias: number
+}
+
+export interface FichaResumo {
+  id: number
+  numeroPrisioneiro: number
+  nomeDetento: string
+  passaporteDetento: string
+  dataEntrada: string
+  statusPrisao: StatusPrisao
+  tempoTotalMeses: number
+  valorMultaTotal: number
+  exigeTornozeleira: boolean
+  permiteFianca: boolean
+  policialCondutor?: string | null
+  oficialRegistrouNome?: string | null
+  artigos: string[]
+  crimes: string[]
+}
+
+export interface HistoricoFichas {
+  nomeDetento: string
+  passaporteDetento: string
+  totalFichas: number
+  totalMesesPena: number
+  totalMultas: number
+  artigos: ArtigoResumo[]
+  fichas: FichaResumo[]
+}
+
 export interface PenalCalcResult {
   crimes: CrimeCometido[]
   tempoTotalMeses: number

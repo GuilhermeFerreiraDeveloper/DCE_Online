@@ -322,4 +322,78 @@ public class DetentoService
             UltimaEntrada = atual.DataEntrada,
         };
     }
+
+    /// <summary>
+    /// Retorna todas as fichas (prisões) de um detento pelo passaporte,
+    /// numeradas em ordem cronológica, com resumo de total e artigos mais comuns.
+    /// </summary>
+    public async Task<HistoricoFichasDto?> HistoricoPorPassaporteAsync(string passaporte)
+    {
+        var alvo = passaporte.Trim();
+
+        var fichas = await _db.Detentos
+            .Include(d => d.OficialRegistrou)
+            .Where(d => d.PassaporteDetento == alvo)
+            .OrderBy(d => d.DataEntrada)
+            .ToListAsync();
+
+        if (fichas.Count == 0)
+            return null;
+
+        var contagemArtigos = new Dictionary<string, (string Artigo, string Crime, int Ocorrencias)>();
+        foreach (var f in fichas)
+        {
+            foreach (var c in f.CrimesCometidos)
+            {
+                var chave = c.Artigo;
+                if (!contagemArtigos.ContainsKey(chave))
+                    contagemArtigos[chave] = (c.Artigo, c.Crime, 0);
+                var atual = contagemArtigos[chave];
+                contagemArtigos[chave] = (atual.Artigo, atual.Crime, atual.Ocorrencias + 1);
+            }
+        }
+
+        var artigosResumo = contagemArtigos.Values
+            .OrderByDescending(a => a.Ocorrencias)
+            .ThenBy(a => a.Artigo)
+            .Select(a => new ArtigoResumoDto
+            {
+                Artigo = a.Artigo,
+                Crime = a.Crime,
+                Ocorrencias = a.Ocorrencias,
+            })
+            .ToList();
+
+        var fichasDto = fichas
+            .Select((f, i) => new FichaResumoDto
+            {
+                Id = f.Id,
+                NumeroPrisioneiro = i + 1,
+                NomeDetento = f.NomeDetento,
+                PassaporteDetento = f.PassaporteDetento,
+                DataEntrada = f.DataEntrada,
+                StatusPrisao = f.StatusPrisao,
+                TempoTotalMeses = f.TempoTotalMeses,
+                ValorMultaTotal = f.ValorMultaTotal,
+                ExigeTornozeleira = f.ExigeTornozeleira,
+                PermiteFianca = f.PermiteFianca,
+                PolicialCondutor = f.PolicialCondutor,
+                OficialRegistrouNome = f.OficialRegistrou?.Nome,
+                Artigos = f.CrimesCometidos.Select(c => c.Artigo).ToList(),
+                Crimes = f.CrimesCometidos.Select(c => c.Crime).ToList(),
+            })
+            .OrderByDescending(f => f.DataEntrada)
+            .ToList();
+
+        return new HistoricoFichasDto
+        {
+            NomeDetento = fichas[0].NomeDetento,
+            PassaporteDetento = alvo,
+            TotalFichas = fichas.Count,
+            TotalMesesPena = fichas.Sum(f => f.TempoTotalMeses),
+            TotalMultas = fichas.Sum(f => f.ValorMultaTotal),
+            Artigos = artigosResumo,
+            Fichas = fichasDto,
+        };
+    }
 }
