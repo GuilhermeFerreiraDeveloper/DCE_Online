@@ -201,12 +201,13 @@ export default function NovoDetento() {
                   </div>
                 </Field>
 
-                <Field label="Órgão / Policial Condutor">
+                <Field label="Órgão / Policial Condutor" hint="Preenchido automaticamente com o oficial logado.">
                   <input
                     value={form.policialCondutor}
                     onChange={(e) => setForm((f) => ({ ...f, policialCondutor: e.target.value }))}
                     className="dce-input"
                     placeholder="Ex.: PM — 3º Batalhão"
+                    readOnly
                   />
                 </Field>
 
