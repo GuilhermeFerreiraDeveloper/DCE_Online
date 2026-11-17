@@ -35,7 +35,7 @@ export default function NovoDetento() {
     nomeDetento: '',
     passaporteDetento: '',
     fotoUrl: '',
-    policialCondutor: '',
+    policialCondutor: oficial ? `${oficial.patente} ${oficial.nome}` : '',
   })
   const [periculosidade, setPericulosidade] = useState<NivelPericulosidade>('MODERADO')
   const [verificacao, setVerificacao] = useState<VerificacaoPassaporte | null>(null)
