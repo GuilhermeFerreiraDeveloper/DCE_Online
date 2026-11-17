@@ -1,17 +1,32 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Check, FilePlus2, Gavel, Image, ShieldPlus, UserRound } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import {
+  AlertTriangle,
+  BadgeCheck,
+  Check,
+  ClipboardPaste,
+  FilePlus2,
+  Gavel,
+  Image,
+  RefreshCw,
+  ShieldAlert,
+  ShieldPlus,
+  Upload,
+  UserRound,
+  X,
+} from 'lucide-react'
 import { Field } from '@/components/ui/Field'
 import { InlineError, Spinner } from '@/components/ui/Feedback'
 import { PenalCalculadora } from '@/components/detento/PenalCalculadora'
 import { dceApi } from '@/services/api'
 import { useAuthStore } from '@/store/auth'
 import { formatBRL, mesesParaTexto } from '@/utils/format'
-import type { CodigoPenalArtigo, NivelPericulosidade } from '@/types'
+import type { CodigoPenalArtigo, NivelPericulosidade, VerificacaoPassaporte } from '@/types'
 
 export default function NovoDetento() {
   const oficial = useAuthStore((s) => s.oficial)
   const navigate = useNavigate()
+  const inputArquivoRef = useRef<HTMLInputElement>(null)
 
   const [artigos, setArtigos] = useState<CodigoPenalArtigo[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -23,8 +38,12 @@ export default function NovoDetento() {
     policialCondutor: '',
   })
   const [periculosidade, setPericulosidade] = useState<NivelPericulosidade>('MODERADO')
+  const [verificacao, setVerificacao] = useState<VerificacaoPassaporte | null>(null)
+  const [verificando, setVerificando] = useState(false)
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
+
+  const bloqueado = !!verificacao?.emCustodia
 
   useEffect(() => {
     ;(async () => {
@@ -38,6 +57,33 @@ export default function NovoDetento() {
     })()
   }, [])
 
+  /** Lê um arquivo/imagem e converte para Base64 (data URL) para pré-visualização. */
+  const aplicarImagem = useCallback((arquivo: File) => {
+    if (!arquivo.type.startsWith('image/')) return
+    const leitor = new FileReader()
+    leitor.onload = () => {
+      const resultado = String(leitor.result)
+      setForm((f) => ({ ...f, fotoUrl: resultado }))
+    }
+    leitor.readAsDataURL(arquivo)
+  }, [])
+
+  // Colar print da área de transferência (Windows + Shift + S → Ctrl + V).
+  useEffect(() => {
+    const aoColar = (e: ClipboardEvent) => {
+      const itens = e.clipboardData?.items
+      if (!itens) return
+      const itemImagem = Array.from(itens).find((i) => i.type.startsWith('image/'))
+      if (!itemImagem) return
+      const arquivo = itemImagem.getAsFile()
+      if (!arquivo) return
+      e.preventDefault()
+      aplicarImagem(arquivo)
+    }
+    window.addEventListener('paste', aoColar)
+    return () => window.removeEventListener('paste', aoColar)
+  }, [aplicarImagem])
+
   const artigosSelecionados = useMemo(
     () => artigos.filter((a) => selecionados.includes(a.id)),
     [artigos, selecionados],
@@ -46,10 +92,36 @@ export default function NovoDetento() {
   const toggle = (id: number) =>
     setSelecionados((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
 
+  const verificar = async () => {
+    const passaporte = form.passaporteDetento.trim()
+    if (!passaporte) return
+    setVerificando(true)
+    setErro('')
+    try {
+      const resultado = await dceApi.verificarPassaporte(passaporte)
+      setVerificacao(resultado)
+      // Reincidente em liberdade: preenche nome e mugshot anteriores automaticamente.
+      if (resultado.existe && !resultado.emCustodia) {
+        setForm((f) => ({
+          ...f,
+          nomeDetento: f.nomeDetento || resultado.nome || '',
+          fotoUrl: f.fotoUrl || resultado.fotoUrl || '',
+        }))
+      }
+    } catch {
+      setErro('Não foi possível verificar o passaporte. Tente novamente.')
+    } finally {
+      setVerificando(false)
+    }
+  }
+
   const submeter = async (e: FormEvent) => {
     e.preventDefault()
     setErro('')
     if (!oficial) return
+    if (bloqueado) {
+      return setErro('Este cidadão já está cumprindo pena (EM_CUSTODIA). Dê baixa na ficha ativa antes de novo registro.')
+    }
     if (!form.nomeDetento.trim() || !form.passaporteDetento.trim()) {
       return setErro('Preencha o Nome e o Passaporte/ID do detento.')
     }
@@ -77,6 +149,8 @@ export default function NovoDetento() {
     }
   }
 
+  const fotoEhBase64 = form.fotoUrl.startsWith('data:')
+
   return (
     <div className="space-y-6">
       <header>
@@ -101,25 +175,32 @@ export default function NovoDetento() {
                 <UserRound size={14} /> Identificação
               </p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Field label="Nome Completo (RP)" className="sm:col-span-2">
-                  <input
-                    value={form.nomeDetento}
-                    onChange={(e) => setForm((f) => ({ ...f, nomeDetento: e.target.value }))}
-                    className="dce-input"
-                    placeholder="Nome e sobrenome do detento"
-                    required
-                  />
+                <Field label="Passaporte / ID" hint="Ao sair do campo, verificamos se já existe ficha.">
+                  <div className="flex gap-2">
+                    <input
+                      value={form.passaporteDetento}
+                      onChange={(e) => {
+                        setForm((f) => ({ ...f, passaporteDetento: e.target.value }))
+                        setVerificacao(null)
+                      }}
+                      onBlur={verificar}
+                      className="dce-input font-mono"
+                      placeholder="Ex.: 2001"
+                      inputMode="numeric"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={verificar}
+                      disabled={verificando || !form.passaporteDetento.trim()}
+                      className="dce-btn-ghost shrink-0 !px-3"
+                      title="Verificar passaporte"
+                    >
+                      {verificando ? <RefreshCw size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+                    </button>
+                  </div>
                 </Field>
-                <Field label="Passaporte / ID">
-                  <input
-                    value={form.passaporteDetento}
-                    onChange={(e) => setForm((f) => ({ ...f, passaporteDetento: e.target.value }))}
-                    className="dce-input font-mono"
-                    placeholder="Ex.: 2001"
-                    inputMode="numeric"
-                    required
-                  />
-                </Field>
+
                 <Field label="Órgão / Policial Condutor">
                   <input
                     value={form.policialCondutor}
@@ -128,16 +209,126 @@ export default function NovoDetento() {
                     placeholder="Ex.: PM — 3º Batalhão"
                   />
                 </Field>
-                <Field label="Link da Foto (Mugshot)" className="sm:col-span-2" hint="URL opcional da imagem do detento.">
-                  <div className="relative">
-                    <Image size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                    <input
-                      value={form.fotoUrl}
-                      onChange={(e) => setForm((f) => ({ ...f, fotoUrl: e.target.value }))}
-                      className="dce-input pl-9 text-xs"
-                      placeholder="https://..."
-                    />
+
+                {/* Resultado da verificação */}
+                {verificacao?.emCustodia && (
+                  <div className="sm:col-span-2 flex items-start gap-3 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-3">
+                    <ShieldAlert size={18} className="mt-0.5 shrink-0 text-red-300" />
+                    <div className="text-xs text-red-100">
+                      <p className="text-sm font-semibold text-red-200">Cidadão já está preso (EM CUSTÓDIA)</p>
+                      <p className="mt-0.5 text-red-200/80">
+                        Já existe uma ficha ativa para <strong>{verificacao.nome}</strong>. Não é possível abrir uma
+                        nova entrada enquanto ele estiver cumprindo pena.
+                      </p>
+                      {verificacao.ultimaFichaId && (
+                        <Link
+                          to={`/painel/detento/${verificacao.ultimaFichaId}`}
+                          className="mt-2 inline-block font-semibold text-gold-300 hover:text-gold-200"
+                        >
+                          Abrir ficha ativa →
+                        </Link>
+                      )}
+                    </div>
                   </div>
+                )}
+
+                {verificacao?.existe && !verificacao.emCustodia && (
+                  <div className="sm:col-span-2 flex items-start gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-3">
+                    <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-300" />
+                    <div className="text-xs text-amber-100">
+                      <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-amber-200">
+                        Reincidente
+                        <span className="dce-tag border-amber-500/40 bg-amber-500/15 text-amber-200">
+                          {verificacao.totalPassagens} passagem(ns)
+                        </span>
+                      </p>
+                      <p className="mt-0.5 text-amber-200/80">
+                        Cidadão com histórico anterior. Nome e mugshot preenchidos automaticamente — revise antes de
+                        registrar.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {verificacao && !verificacao.existe && (
+                  <div className="sm:col-span-2 flex items-center gap-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5">
+                    <BadgeCheck size={18} className="shrink-0 text-emerald-300" />
+                    <p className="text-xs text-emerald-100">
+                      <strong className="text-emerald-200">Réu primário</strong> — nenhuma ficha anterior para este
+                      passaporte.
+                    </p>
+                  </div>
+                )}
+
+                {/* Mugshot */}
+                <Field
+                  label="Mugshot do Detento"
+                  className="sm:col-span-2"
+                  hint="Cole um print (Ctrl + V), envie um arquivo ou informe um link."
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <div className="grid h-28 w-24 shrink-0 place-items-center overflow-hidden rounded-md border border-white/10 bg-navy-950/60">
+                      {form.fotoUrl ? (
+                        <img src={form.fotoUrl} alt="Mugshot do detento" className="h-full w-full object-cover" />
+                      ) : (
+                        <Image size={22} className="text-slate-600" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => inputArquivoRef.current?.click()}
+                          className="dce-btn-ghost !py-2 text-xs"
+                        >
+                          <Upload size={14} /> Enviar arquivo
+                        </button>
+                        {form.fotoUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setForm((f) => ({ ...f, fotoUrl: '' }))}
+                            className="dce-btn-ghost !py-2 text-xs !text-red-300 hover:!bg-red-500/10"
+                          >
+                            <X size={14} /> Remover
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        ref={inputArquivoRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const arquivo = e.target.files?.[0]
+                          if (arquivo) aplicarImagem(arquivo)
+                          e.target.value = ''
+                        }}
+                      />
+                      <div className="relative">
+                        <Image size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                        <input
+                          value={fotoEhBase64 ? '' : form.fotoUrl}
+                          onChange={(e) => setForm((f) => ({ ...f, fotoUrl: e.target.value }))}
+                          disabled={fotoEhBase64}
+                          className="dce-input pl-9 text-xs disabled:opacity-60"
+                          placeholder={fotoEhBase64 ? 'Imagem colada (Base64) anexada' : 'https://...'}
+                        />
+                      </div>
+                      <p className="flex items-center gap-1.5 text-[0.68rem] text-slate-500">
+                        <ClipboardPaste size={12} /> Dica: use Windows + Shift + S e depois Ctrl + V para colar o print.
+                      </p>
+                    </div>
+                  </div>
+                </Field>
+
+                <Field label="Nome Completo (RP)" className="sm:col-span-2">
+                  <input
+                    value={form.nomeDetento}
+                    onChange={(e) => setForm((f) => ({ ...f, nomeDetento: e.target.value }))}
+                    className="dce-input"
+                    placeholder="Nome e sobrenome do detento"
+                    required
+                  />
                 </Field>
               </div>
 
@@ -227,7 +418,7 @@ export default function NovoDetento() {
 
             {erro && <InlineError>{erro}</InlineError>}
 
-            <button type="submit" disabled={salvando} className="dce-btn-primary w-full !py-3">
+            <button type="submit" disabled={salvando || bloqueado} className="dce-btn-primary w-full !py-3">
               <FilePlus2 size={18} />
               {salvando ? 'Registrando...' : 'Registrar Entrada no Presídio'}
             </button>

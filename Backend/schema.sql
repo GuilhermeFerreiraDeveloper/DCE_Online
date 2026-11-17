@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS oficiais (
     passaporte    VARCHAR(32)  UNIQUE NOT NULL,
     nome          VARCHAR(120) NOT NULL,
     email         VARCHAR(160) UNIQUE NOT NULL,
+    foto_url      TEXT,
     senha_hash    VARCHAR(255) NOT NULL,
     patente       VARCHAR(60)  NOT NULL DEFAULT 'Recruta',
     departamento  VARCHAR(60)  NOT NULL DEFAULT 'Departamento de Custódia do Estado',
@@ -37,6 +38,10 @@ CREATE TABLE IF NOT EXISTS oficiais (
 ALTER TABLE oficiais
     ADD COLUMN IF NOT EXISTS departamento VARCHAR(60) NOT NULL
     DEFAULT 'Departamento de Custódia do Estado';
+
+-- Atualização idempotente para bancos criados antes do campo "foto_url" (foto de perfil do oficial).
+ALTER TABLE oficiais
+    ADD COLUMN IF NOT EXISTS foto_url TEXT;
 
 CREATE INDEX IF NOT EXISTS ix_oficiais_nivel   ON oficiais (nivel_acesso);
 CREATE INDEX IF NOT EXISTS ix_oficiais_status  ON oficiais (status_conta);

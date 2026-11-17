@@ -30,6 +30,11 @@ public class DetentosController : ControllerBase
         return dto is null ? NotFound() : Ok(dto);
     }
 
+    /// <summary>Verifica se já existe ficha para o passaporte (prisão ativa / reincidência).</summary>
+    [HttpGet("verificar-passaporte/{passaporte}")]
+    public async Task<ActionResult<VerificacaoPassaporteDto>> VerificarPassaporte(string passaporte)
+        => Ok(await _svc.VerificarPassaporteAsync(passaporte));
+
     /// <summary>Registra a entrada de um detento (cálculo dos totais no servidor).</summary>
     [HttpPost]
     public async Task<ActionResult<DetentoDto>> Criar([FromBody] CriarDetentoRequest req)

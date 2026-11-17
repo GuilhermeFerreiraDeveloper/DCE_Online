@@ -7,6 +7,7 @@ import type {
   LogAuditoria,
   NivelPericulosidade,
   Oficial,
+  VerificacaoPassaporte,
 } from '@/types'
 import { gerarId } from '@/utils/format'
 import { calcularPena } from '@/utils/penal'
@@ -156,6 +157,32 @@ export async function demoRegister(payload: {
   return delay({ ok: true })
 }
 
+/** Troca a senha do oficial autenticado (modo demonstração). */
+export async function demoAlterarSenha(
+  oficial: Oficial,
+  senhaAtual: string,
+  novaSenha: string,
+): Promise<{ ok: boolean }> {
+  const alvo = db.oficiais.find((o) => o.passaporte === oficial.passaporte)
+  if (!alvo) throw new DemoError('Oficial não encontrado.', 404)
+  if (db.senhas[alvo.passaporte] !== senhaAtual)
+    throw new DemoError('A senha atual está incorreta.', 400)
+  if (senhaAtual === novaSenha)
+    throw new DemoError('A nova senha deve ser diferente da atual.', 400)
+  db.senhas[alvo.passaporte] = novaSenha
+  persist()
+  return delay({ ok: true })
+}
+
+/** Atualiza a foto de perfil do oficial autenticado (modo demonstração). */
+export async function demoAtualizarPerfil(oficial: Oficial, fotoUrl: string | null): Promise<Oficial> {
+  const alvo = db.oficiais.find((o) => o.passaporte === oficial.passaporte)
+  if (!alvo) throw new DemoError('Oficial não encontrado.', 404)
+  alvo.fotoUrl = fotoUrl && fotoUrl.trim() ? fotoUrl.trim() : null
+  persist()
+  return delay({ ...alvo })
+}
+
 // --------------------------- Consulta pública ------------------------------
 
 export async function demoFichaPublica(passaporte: string): Promise<FichaPublica> {
@@ -193,6 +220,26 @@ export async function demoFichaPublica(passaporte: string): Promise<FichaPublica
 }
 
 // ------------------------------- Detentos ----------------------------------
+
+export async function demoVerificarPassaporte(passaporte: string): Promise<VerificacaoPassaporte> {
+  const fichas = db.detentos
+    .filter((d) => d.passaporteDetento === passaporte.trim())
+    .sort((a, b) => +new Date(b.dataEntrada) - +new Date(a.dataEntrada))
+
+  if (fichas.length === 0) return delay({ existe: false, emCustodia: false, totalPassagens: 0 })
+
+  const atual = fichas[0]
+  return delay({
+    existe: true,
+    emCustodia: atual.statusPrisao === 'EM_CUSTODIA',
+    totalPassagens: fichas.length,
+    nome: atual.nomeDetento,
+    fotoUrl: atual.fotoUrl,
+    ultimaFichaId: atual.id,
+    statusPrisao: atual.statusPrisao,
+    ultimaEntrada: atual.dataEntrada,
+  })
+}
 
 export async function demoListarDetentos(busca = ''): Promise<Detento[]> {
   const termo = busca.trim().toLowerCase()

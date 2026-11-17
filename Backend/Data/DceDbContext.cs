@@ -29,6 +29,7 @@ public class DceDbContext : DbContext
             e.Property(x => x.Passaporte).HasColumnName("passaporte").HasMaxLength(32).IsRequired();
             e.Property(x => x.Nome).HasColumnName("nome").HasMaxLength(120).IsRequired();
             e.Property(x => x.Email).HasColumnName("email").HasMaxLength(160).IsRequired();
+            e.Property(x => x.FotoUrl).HasColumnName("foto_url");
             e.Property(x => x.SenhaHash).HasColumnName("senha_hash").HasMaxLength(255).IsRequired();
             e.Property(x => x.Patente).HasColumnName("patente").HasMaxLength(60).IsRequired();
             e.Property(x => x.Departamento).HasColumnName("departamento").HasMaxLength(60).IsRequired();

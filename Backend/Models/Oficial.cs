@@ -18,6 +18,12 @@ public class Oficial
     [Required, MaxLength(160)]
     public string Email { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Foto de perfil (rosto) do oficial — Base64/data URL ou link externo.
+    /// Opcional: não é exigida no cadastro, sendo definida depois na área do oficial.
+    /// </summary>
+    public string? FotoUrl { get; set; }
+
     /// <summary>Hash BCrypt da senha (nunca exposto em DTOs).</summary>
     [Required, MaxLength(255)]
     public string SenhaHash { get; set; } = string.Empty;

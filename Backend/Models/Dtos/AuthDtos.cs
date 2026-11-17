@@ -36,3 +36,20 @@ public class LoginResponse
     public string Token { get; set; } = string.Empty;
     public OficialDto Oficial { get; set; } = new();
 }
+
+/// <summary>Troca de senha pelo próprio oficial (exige a senha atual).</summary>
+public class AlterarSenhaRequest
+{
+    [Required]
+    public string SenhaAtual { get; set; } = string.Empty;
+
+    [Required, MinLength(6)]
+    public string NovaSenha { get; set; } = string.Empty;
+}
+
+/// <summary>Atualização do próprio perfil (foto de rosto).</summary>
+public class AtualizarPerfilRequest
+{
+    /// <summary>Base64/data URL ou link da foto. Vazio remove a foto.</summary>
+    public string? FotoUrl { get; set; }
+}

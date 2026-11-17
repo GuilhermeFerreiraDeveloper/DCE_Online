@@ -13,6 +13,7 @@ interface AuthState {
   login: (identificador: string, senha: string) => Promise<void>
   logout: () => void
   restaurar: () => void
+  atualizarOficial: (patch: Partial<Oficial>) => void
   podeNivel: (...niveis: number[]) => boolean
 }
 
@@ -58,6 +59,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     setAuthToken(null)
     useConnectionStore.getState().setDemoMode(null)
     set({ token: null, oficial: null })
+  },
+
+  atualizarOficial: (patch) => {
+    const atual = get().oficial
+    if (!atual) return
+    const atualizado = { ...atual, ...patch }
+    localStorage.setItem(USER_KEY, JSON.stringify(atualizado))
+    set({ oficial: atualizado })
   },
 
   podeNivel: (...niveis) => {

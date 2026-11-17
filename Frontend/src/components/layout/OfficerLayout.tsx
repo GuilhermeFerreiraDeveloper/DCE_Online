@@ -10,17 +10,19 @@ import {
   ScrollText,
   ShieldHalf,
   UserCheck,
+  UserCog,
   Users,
   X,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
+import { Avatar } from '@/components/ui/Avatar'
 import { DemoBanner } from './DemoBanner'
-import { iniciais } from '@/utils/format'
 
 const NAV = [
   { to: '/painel', label: 'Painel de Presos', icon: LayoutDashboard, niveis: [1, 2, 3] },
   { to: '/painel/novo', label: 'Nova Ficha', icon: FilePlus2, niveis: [1, 2, 3] },
   { to: '/painel/codigo-penal', label: 'Código Penal', icon: BookOpen, niveis: [1, 2, 3] },
+  { to: '/painel/perfil', label: 'Minha Conta', icon: UserCog, niveis: [1, 2, 3] },
   { to: '/comando/aprovacoes', label: 'Aprovações', icon: UserCheck, niveis: [1] },
   { to: '/comando/oficiais', label: 'Oficiais', icon: Users, niveis: [1] },
   { to: '/comando/auditoria', label: 'Auditoria', icon: ScrollText, niveis: [1] },
@@ -79,17 +81,20 @@ export function OfficerLayout() {
       </nav>
 
       <div className="border-t border-white/5 p-3">
-        <div className="flex items-center gap-3 rounded-md bg-white/[0.03] px-3 py-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-md bg-navy-950 font-display text-sm font-semibold text-gold-300">
-            {iniciais(oficial?.nome ?? 'DCE')}
-          </span>
+        <Link
+          to="/painel/perfil"
+          onClick={() => setMenuAberto(false)}
+          className="flex items-center gap-3 rounded-md bg-white/[0.03] px-3 py-2.5 transition hover:bg-white/[0.06]"
+          title="Minha Conta"
+        >
+          <Avatar nome={oficial?.nome ?? 'DCE'} fotoUrl={oficial?.fotoUrl} size={36} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-white">{oficial?.nome}</p>
             <p className="truncate text-[0.68rem] uppercase tracking-wider text-gold-400/80">
               {oficial?.patente} · N{oficial?.nivelAcesso}
             </p>
           </div>
-        </div>
+        </Link>
         <button onClick={sair} className="dce-btn-ghost mt-2 w-full justify-start !text-red-300 hover:!bg-red-500/10">
           <LogOut size={16} />
           Encerrar Sessão

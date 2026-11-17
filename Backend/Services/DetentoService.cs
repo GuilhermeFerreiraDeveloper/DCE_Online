@@ -292,4 +292,34 @@ public class DetentoService
             }).ToList(),
         };
     }
+
+    /// <summary>
+    /// Verifica, pelo passaporte, se o cidadão já possui ficha registrada.
+    /// Usado na tela de Nova Ficha para bloquear presos ativos e detectar reincidência.
+    /// </summary>
+    public async Task<VerificacaoPassaporteDto> VerificarPassaporteAsync(string passaporte)
+    {
+        var alvo = passaporte.Trim();
+
+        var fichas = await _db.Detentos
+            .Where(d => d.PassaporteDetento == alvo)
+            .OrderByDescending(d => d.DataEntrada)
+            .ToListAsync();
+
+        if (fichas.Count == 0)
+            return new VerificacaoPassaporteDto { Existe = false };
+
+        var atual = fichas[0];
+        return new VerificacaoPassaporteDto
+        {
+            Existe = true,
+            EmCustodia = atual.StatusPrisao == StatusPrisao.EmCustodia,
+            TotalPassagens = fichas.Count,
+            Nome = atual.NomeDetento,
+            FotoUrl = atual.FotoUrl,
+            UltimaFichaId = atual.Id,
+            StatusPrisao = atual.StatusPrisao,
+            UltimaEntrada = atual.DataEntrada,
+        };
+    }
 }

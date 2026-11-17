@@ -8,6 +8,7 @@ import type {
   LoginResponse,
   NivelPericulosidade,
   Oficial,
+  VerificacaoPassaporte,
 } from '@/types'
 import { useConnectionStore } from '@/store/connection'
 import * as demo from './demoStore'
@@ -86,6 +87,21 @@ export const dceApi = {
       () => demo.demoRegister(payload),
     ),
 
+  alterarSenha: (
+    payload: { senhaAtual: string; novaSenha: string },
+    oficial: Oficial,
+  ): Promise<{ ok: boolean }> =>
+    withFallback(
+      () => http<{ ok: boolean }>('/auth/senha', { ...corpoJson(payload), method: 'PUT' }),
+      () => demo.demoAlterarSenha(oficial, payload.senhaAtual, payload.novaSenha),
+    ),
+
+  atualizarPerfil: (payload: { fotoUrl: string | null }, oficial: Oficial): Promise<Oficial> =>
+    withFallback(
+      () => http<Oficial>('/auth/perfil', { ...corpoJson(payload), method: 'PUT' }),
+      () => demo.demoAtualizarPerfil(oficial, payload.fotoUrl),
+    ),
+
   // --------------------------- Consulta pública ---------------------------
   fichaPublica: (passaporte: string): Promise<FichaPublica> =>
     withFallback(
@@ -104,6 +120,12 @@ export const dceApi = {
     withFallback(
       () => http<Detento>(`/detentos/${id}`),
       () => demo.demoObterDetento(id),
+    ),
+
+  verificarPassaporte: (passaporte: string): Promise<VerificacaoPassaporte> =>
+    withFallback(
+      () => http<VerificacaoPassaporte>(`/detentos/verificar-passaporte/${encodeURIComponent(passaporte)}`),
+      () => demo.demoVerificarPassaporte(passaporte),
     ),
 
   criarDetento: (

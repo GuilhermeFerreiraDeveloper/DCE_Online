@@ -12,6 +12,7 @@ public static class DtoMapper
         Passaporte = o.Passaporte,
         Nome = o.Nome,
         Email = o.Email,
+        FotoUrl = o.FotoUrl,
         Patente = o.Patente,
         Departamento = o.Departamento,
         NivelAcesso = o.NivelAcesso,

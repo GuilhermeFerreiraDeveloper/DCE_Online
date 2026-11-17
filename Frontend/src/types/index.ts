@@ -51,6 +51,8 @@ export interface Oficial {
   passaporte: string
   nome: string
   email: string
+  /** Foto de perfil (rosto) em Base64/data URL. Opcional — definida na área do oficial. */
+  fotoUrl?: string | null
   patente: string
   departamento: string
   nivelAcesso: NivelAcesso
@@ -168,6 +170,17 @@ export interface FichaPublica {
   totalMeses?: number
   totalMulta?: number
   passagens?: PassagemPublica[]
+}
+
+export interface VerificacaoPassaporte {
+  existe: boolean
+  emCustodia: boolean
+  totalPassagens: number
+  nome?: string | null
+  fotoUrl?: string | null
+  ultimaFichaId?: number | null
+  statusPrisao?: StatusPrisao | null
+  ultimaEntrada?: string | null
 }
 
 export interface PenalCalcResult {

@@ -8,6 +8,7 @@ public class OficialDto
     public string Passaporte { get; set; } = string.Empty;
     public string Nome { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string? FotoUrl { get; set; }
     public string Patente { get; set; } = string.Empty;
     public string Departamento { get; set; } = string.Empty;
     public int NivelAcesso { get; set; }

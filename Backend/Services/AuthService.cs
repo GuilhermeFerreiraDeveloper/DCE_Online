@@ -78,4 +78,32 @@ public class AuthService
         var oficial = await _db.Oficiais.FindAsync(oficialId);
         return oficial is null ? null : DtoMapper.ParaDto(oficial);
     }
+
+    /// <summary>Troca a senha do próprio oficial validando a senha atual.</summary>
+    public async Task AlterarSenhaAsync(int oficialId, AlterarSenhaRequest req)
+    {
+        var oficial = await _db.Oficiais.FindAsync(oficialId)
+            ?? throw AppException.NaoEncontrado("Oficial não encontrado.");
+
+        if (!BCrypt.Net.BCrypt.Verify(req.SenhaAtual, oficial.SenhaHash))
+            throw AppException.Validacao("A senha atual está incorreta.");
+
+        if (req.SenhaAtual == req.NovaSenha)
+            throw AppException.Validacao("A nova senha deve ser diferente da atual.");
+
+        oficial.SenhaHash = BCrypt.Net.BCrypt.HashPassword(req.NovaSenha);
+        await _db.SaveChangesAsync();
+    }
+
+    /// <summary>Atualiza o próprio perfil (foto de rosto). Vazio remove a foto.</summary>
+    public async Task<OficialDto> AtualizarPerfilAsync(int oficialId, AtualizarPerfilRequest req)
+    {
+        var oficial = await _db.Oficiais.FindAsync(oficialId)
+            ?? throw AppException.NaoEncontrado("Oficial não encontrado.");
+
+        oficial.FotoUrl = string.IsNullOrWhiteSpace(req.FotoUrl) ? null : req.FotoUrl.Trim();
+        await _db.SaveChangesAsync();
+
+        return DtoMapper.ParaDto(oficial);
+    }
 }

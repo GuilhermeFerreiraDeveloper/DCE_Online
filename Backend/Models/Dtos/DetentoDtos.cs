@@ -73,3 +73,26 @@ public class BaixaRequest
     [MaxLength(400)]
     public string? Motivo { get; set; }
 }
+
+/// <summary>Resultado da verificação de passaporte antes de abrir uma nova ficha.</summary>
+public class VerificacaoPassaporteDto
+{
+    /// <summary>Indica se o cidadão já possui alguma ficha registrada.</summary>
+    public bool Existe { get; set; }
+
+    /// <summary>Verdadeiro quando a ficha mais recente está em custódia (prisão ativa).</summary>
+    public bool EmCustodia { get; set; }
+
+    /// <summary>Quantidade total de passagens (fichas) registradas para o passaporte.</summary>
+    public int TotalPassagens { get; set; }
+
+    /// <summary>Nome do detento na ficha mais recente (para autopreenchimento).</summary>
+    public string? Nome { get; set; }
+
+    /// <summary>Mugshot da ficha mais recente (para autopreenchimento).</summary>
+    public string? FotoUrl { get; set; }
+
+    public int? UltimaFichaId { get; set; }
+    public StatusPrisao? StatusPrisao { get; set; }
+    public DateTime? UltimaEntrada { get; set; }
+}
