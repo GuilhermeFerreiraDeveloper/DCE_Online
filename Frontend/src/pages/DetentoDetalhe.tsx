@@ -5,9 +5,8 @@ import {
   Ban,
   CalendarClock,
   CircleDollarSign,
-  FilePlus2,
-  FileSearch,
-  Fingerprint,
+  FileCheck,
+  Download,
   Gavel,
   History,
   Pencil,
@@ -54,7 +53,13 @@ export default function DetentoDetalhe() {
   const [editarAberta, setEditarAberta] = useState(false)
   const [excluirAberto, setExcluirAberto] = useState(false)
   const [docAberto, setDocAberto] = useState(false)
+  const [modalDocumento, setModalDocumentoState] = useState<{ tipo: 'CERTIDAO' | 'ALVARA' | 'MANDADO' } | null>(null)
   const [excluindo, setExcluindo] = useState(false)
+
+  const setModalDocumento = (config: { tipo: 'CERTIDAO' | 'ALVARA' | 'MANDADO' }) => {
+    setModalDocumentoState(config)
+    setDocAberto(true)
+  }
 
   const nivel = oficial?.nivelAcesso ?? 3
   const podeEditar = nivel <= 2
@@ -315,8 +320,12 @@ export default function DetentoDetalhe() {
       <DocumentoModal
         detento={detento}
         aberto={docAberto}
-        onFechar={() => setDocAberto(false)}
+        onFechar={() => {
+          setDocAberto(false)
+          setModalDocumentoState(null)
+        }}
         oficial={oficial}
+        tipo={modalDocumento?.tipo}
       />
 
       <Modal

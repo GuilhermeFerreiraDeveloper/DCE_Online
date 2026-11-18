@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Clock, Play, Square, Timer } from 'lucide-react'
 import { dceApi } from '@/services/api'
-import { formatTime } from '@/utils/format'
 import type { RegistroPonto } from '@/types'
 
 export function BatePontoWidget() {

@@ -5,7 +5,6 @@ import {
   ChevronRight, 
   BookOpen, 
   Users, 
-  Award, 
   FileText,
   Send,
   AlertTriangle,

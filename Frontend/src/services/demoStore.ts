@@ -165,6 +165,7 @@ export async function demoRegister(payload: {
     statusConta: 'PENDENTE',
     aprovadoPor: null,
     criadoEm: new Date().toISOString(),
+    medalhas: [],
   }
   db.oficiais.push(novo)
   db.senhas[passaporte] = payload.senha
@@ -351,6 +352,8 @@ export async function demoCriarDetento(
     valorMultaTotal: calc.valorMultaTotal,
     exigeTornozeleira: calc.exigeTornozeleira,
     permiteFianca: calc.permiteFianca,
+    recompensa: null,
+    destaqueProcurado: false,
     statusPrisao: 'EM_CUSTODIA',
     policialCondutor: payload.policialCondutor,
     oficialRegistrouId: oficial.id,
@@ -583,8 +586,6 @@ export async function demoEstatisticas(): Promise<Estatisticas> {
     oficiaisPendentes: db.oficiais.filter((o) => o.statusConta === 'PENDENTE').length,
     totalArtigos: db.codigoPenal.length,
     totalOcorrencias: db.historico.length,
-    solturasMes: 12, // Simulando
-    taxaReincidencia: 15.5, // Simulando
   }
   return delay(estatisticas)
 }

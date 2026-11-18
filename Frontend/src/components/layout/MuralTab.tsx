@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { AlertTriangle, Info, Bell, Plus, Image as ImageIcon, Send } from 'lucide-react'
+import { AlertTriangle, Info, Bell, Plus, Send } from 'lucide-react'
 import { dceApi } from '@/services/api'
 import { useAuthStore } from '@/store/auth'
 import type { Aviso, NivelUrgencia } from '@/types'

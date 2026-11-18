@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Send, Users, Shield, MessageSquare } from 'lucide-react'
+import { Send, Users, Shield } from 'lucide-react'
 import { dceApi } from '@/services/api'
 import { useAuthStore } from '@/store/auth'
 import type { ChatMessage, RegistroPonto } from '@/types'

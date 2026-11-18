@@ -1,4 +1,5 @@
-import { ShieldHalf, CheckCircle, Download } from 'lucide-react'
+import { CheckCircle, Download } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Modal } from '@/components/ui/Modal'
 import type { Detento, Oficial } from '@/types'
 import { formatDateTime, gerarId } from '@/utils/format'
@@ -8,11 +9,13 @@ interface Props {
   oficial: Oficial | null
   aberto: boolean
   onFechar: () => void
+  tipo?: 'CERTIDAO' | 'ALVARA' | 'MANDADO'
 }
 
-export function DocumentoModal({ detento, oficial, aberto, onFechar }: Props) {
+export function DocumentoModal({ detento, oficial, aberto, onFechar, tipo }: Props) {
   const protocolo = `DCE-${gerarId()}-${new Date().getFullYear()}`
-  const ehSoltura = detento.statusPrisao === 'LIBERADO'
+  const ehSoltura = tipo === 'ALVARA' || (tipo !== 'CERTIDAO' && detento.statusPrisao === 'LIBERADO')
+  const ehCertidao = tipo === 'CERTIDAO'
 
   return (
     <Modal aberto={aberto} onFechar={onFechar} titulo="Documento Oficial do Estado">
@@ -46,7 +49,7 @@ export function DocumentoModal({ detento, oficial, aberto, onFechar }: Props) {
           {/* TÍTULO DO DOCUMENTO */}
           <div className="mt-8 text-center">
             <h2 className="font-display text-2xl font-black uppercase underline decoration-gold-500 decoration-4 underline-offset-8 text-navy-950">
-              {ehSoltura ? 'Alvará de Soltura Judicial' : 'Mandado de Custódia Operacional'}
+              {ehCertidao ? 'Certidão de Antecedentes Criminais' : ehSoltura ? 'Alvará de Soltura Judicial' : 'Mandado de Custódia Operacional'}
             </h2>
           </div>
 
@@ -54,7 +57,11 @@ export function DocumentoModal({ detento, oficial, aberto, onFechar }: Props) {
           <div className="mt-10 space-y-4 text-sm leading-relaxed">
             <p>
               O <strong>DEPARTAMENTO DE CUSTÓDIA DO ESTADO (DCE)</strong>, no uso de suas atribuições legais, 
-              {ehSoltura ? ' DECLARA a liberdade imediata do cidadão abaixo identificado:' : ' DETERMINA a custódia obrigatória do cidadão abaixo identificado:'}
+              {ehCertidao 
+                ? ' CERTIFICA para os devidos fins os registros do cidadão abaixo identificado:' 
+                : ehSoltura 
+                  ? ' DECLARA a liberdade imediata do cidadão abaixo identificado:' 
+                  : ' DETERMINA a custódia obrigatória do cidadão abaixo identificado:'}
             </p>
 
             <div className="rounded border border-slate-200 bg-slate-50 p-4">

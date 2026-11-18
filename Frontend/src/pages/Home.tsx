@@ -3,14 +3,12 @@ import { Link } from 'react-router-dom'
 import {
   AlertCircle,
   BookOpenCheck,
-  Download,
   FileCheck,
   FileSearch,
   Fingerprint,
   Gavel,
   Lock,
   ScanFace,
-  ShieldHalf,
   Siren,
   UserPlus,
 } from 'lucide-react'
@@ -49,7 +47,6 @@ export default function Home() {
   const [buscando, setBuscando] = useState(false)
   const [ficha, setFicha] = useState<FichaPublica | null>(null)
   const [erro, setErro] = useState('')
-  const [ultimo, setUltimo] = useState('')
   const [foragidos, setForagidos] = useState<Foragido[]>([])
 
   useEffect(() => {
@@ -66,7 +63,6 @@ export default function Home() {
     try {
       const resultado = await dceApi.fichaPublica(valor)
       setFicha(resultado)
-      setUltimo(valor)
     } catch {
       setErro('Não foi possível concluir a consulta. Tente novamente.')
     } finally {
@@ -120,7 +116,7 @@ export default function Home() {
                 disabled={buscando}
                 className="flex h-16 items-center justify-center gap-3 rounded-xl bg-gold-500 px-8 font-display text-lg font-bold uppercase tracking-wider text-navy-950 transition-all hover:scale-[1.02] hover:bg-gold-400 active:scale-[0.98] disabled:opacity-50"
               >
-                {buscando ? <Spinner size={24} /> : <FileSearch size={24} />}
+                {buscando ? <div className="animate-spin"><Fingerprint size={24} /></div> : <FileSearch size={24} />}
                 Consultar Ficha
               </button>
             </form>
@@ -156,7 +152,7 @@ export default function Home() {
                 Limpar Busca
               </button>
             </div>
-            <FichaPublicaCard ficha={ficha} />
+            <FichaPublicaCard ficha={ficha} passaporteBuscado={passaporte} />
             
             {/* BOTÃO DE CERTIDÃO NA HOME */}
             <div className="mt-6 flex justify-center">
