@@ -35,13 +35,13 @@ public class ExceptionHandlingMiddleware
         {
             _logger.LogError(ex, "Erro inesperado ao processar {Metodo} {Path}", context.Request.Method, context.Request.Path);
             
-            var mensagem = "Ocorreu um erro interno no servidor. Tente novamente.";
+            // Retorna a mensagem real do erro para facilitar o diagnóstico pelo usuário, 
+            // independente do ambiente (Development/Production), pois estamos em fase de fix.
+            var mensagem = $"Erro interno no servidor: {ex.Message}";
             
-            // Em desenvolvimento, devolve a mensagem da exceção para facilitar o debug.
-            var env = context.RequestServices.GetRequiredService<IHostEnvironment>();
-            if (env.IsDevelopment())
+            if (ex.InnerException != null)
             {
-                mensagem = $"{mensagem} Erro: {ex.Message}";
+                mensagem += $" | Detalhe: {ex.InnerException.Message}";
             }
 
             await EscreverAsync(context, StatusCodes.Status500InternalServerError, "ERRO_INTERNO", mensagem);

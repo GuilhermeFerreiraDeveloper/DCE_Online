@@ -25,10 +25,10 @@ public class JwtService
         var claims = new List<Claim>
         {
             new("uid", oficial.Id.ToString()),
-            new("nome", oficial.Nome),
-            new("passaporte", oficial.Passaporte),
-            new("email", oficial.Email),
-            new("patente", oficial.Patente),
+            new("nome", oficial.Nome ?? "Sem Nome"),
+            new("passaporte", oficial.Passaporte ?? "0000"),
+            new("email", oficial.Email ?? ""),
+            new("patente", oficial.Patente ?? "Recruta"),
             new("nivel", oficial.NivelAcesso.ToString()),
         };
 
