@@ -33,6 +33,17 @@ public static class DbSeeder
                 },
                 new Oficial
                 {
+                    Passaporte = "0001",
+                    Nome = "Comando Geral",
+                    Email = "diretoria@dce.gov",
+                    SenhaHash = Hash("dce2026"),
+                    Patente = "Diretor Geral",
+                    Departamento = Departamentos.Dce,
+                    NivelAcesso = 1,
+                    StatusConta = StatusConta.Ativo,
+                },
+                new Oficial
+                {
                     Passaporte = "1002",
                     Nome = "Helena Braga",
                     Email = "supervisor@dce.gov",

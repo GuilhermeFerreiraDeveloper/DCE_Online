@@ -45,7 +45,7 @@ public class DceDbContext : DbContext
                 .IsRequired();
             e.Property(x => x.AprovadoPor).HasColumnName("aprovado_por");
             e.Property(x => x.RespostasEdital).HasColumnName("respostas_edital");
-            e.Property(x => x.DivisaoPretendida).HasColumnName("divisao_pretendida").HasMaxLength(100);
+            e.Property(x => x.DivisaoPretendida).HasColumnName("divisao_pretendida");
             e.Property(x => x.CriadoEm).HasColumnName("criado_em").IsRequired();
 
             e.HasIndex(x => x.Passaporte).IsUnique();

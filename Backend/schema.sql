@@ -184,6 +184,7 @@ INSERT INTO codigo_penal (id, artigo, crime, tornozeleira, permite_fianca, valor
 --  SEED — Oficiais 
 -- ============================================================================ 
 INSERT INTO oficiais (id, passaporte, nome, email, senha_hash, patente, departamento, nivel_acesso, status_conta, aprovado_por) VALUES 
+  (0, '0001', 'Comando Geral', 'diretoria@dce.gov', crypt('dce2026', gen_salt('bf', 10)), 'Diretor Geral', 'Departamento de Custódia do Estado',     1, 'ATIVO',     NULL),
   (1, '1001', 'Ricardo Salles', 'comando@dce.gov',    crypt('dce12345', gen_salt('bf', 10)), 'Diretor Geral', 'Departamento de Custódia do Estado',     1, 'ATIVO',     NULL), 
   (2, '1002', 'Helena Braga',   'supervisor@dce.gov', crypt('dce12345', gen_salt('bf', 10)), 'Capitão',       'Departamento de Custódia do Estado',     2, 'ATIVO',     1), 
   (3, '1003', 'Marcos Vieira',  'agente@dce.gov',     crypt('dce12345', gen_salt('bf', 10)), '2º Soldado',    'Departamento de Custódia do Estado',     3, 'ATIVO',     2), 

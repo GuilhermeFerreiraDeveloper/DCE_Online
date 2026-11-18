@@ -34,17 +34,8 @@ public class ExceptionHandlingMiddleware
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro inesperado ao processar {Metodo} {Path}", context.Request.Method, context.Request.Path);
-            
-            // Retorna a mensagem real do erro para facilitar o diagnóstico pelo usuário, 
-            // independente do ambiente (Development/Production), pois estamos em fase de fix.
-            var mensagem = $"Erro interno no servidor: {ex.Message}";
-            
-            if (ex.InnerException != null)
-            {
-                mensagem += $" | Detalhe: {ex.InnerException.Message}";
-            }
-
-            await EscreverAsync(context, StatusCodes.Status500InternalServerError, "ERRO_INTERNO", mensagem);
+            await EscreverAsync(context, StatusCodes.Status500InternalServerError, "ERRO_INTERNO",
+                "Ocorreu um erro interno no servidor. Tente novamente.");
         }
     }
 
