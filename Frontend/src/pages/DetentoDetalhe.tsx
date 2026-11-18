@@ -163,6 +163,33 @@ export default function DetentoDetalhe() {
             <Pencil size={16} /> Editar Ficha
           </button>
         )}
+        {/* DOCUMENTOS */}
+        <div className="flex flex-wrap gap-4 pt-4 border-t border-white/5">
+          <button
+            onClick={() => setModalDocumento({ tipo: 'CERTIDAO' })}
+            className="dce-btn-secondary !px-4 !py-2 text-xs"
+          >
+            <FileCheck size={14} className="mr-2" />
+            Emitir Certidão
+          </button>
+          <button
+            onClick={() => setModalDocumento({ tipo: 'ALVARA' })}
+            className="dce-btn-secondary !px-4 !py-2 text-xs"
+            disabled={detento.statusPrisao !== 'EM_CUSTODIA'}
+          >
+            <Download size={14} className="mr-2" />
+            Alvará de Soltura
+          </button>
+          <button
+            onClick={() => setModalDocumento({ tipo: 'MANDADO' })}
+            className="dce-btn-secondary !px-4 !py-2 text-xs"
+            disabled={detento.statusPrisao !== 'FORAGIDO'}
+          >
+            <Gavel size={14} className="mr-2" />
+            Mandado de Custódia
+          </button>
+        </div>
+
         {podeBaixa && detento.statusPrisao === 'EM_CUSTODIA' && (
           <button onClick={() => setBaixaAberta(true)} className="dce-btn-primary">
             <UserCog size={16} /> Dar Baixa / Soltura

@@ -150,13 +150,26 @@ export default function Home() {
                 Resultado da Consulta
               </h3>
               <button
-                onClick={() => window.print()}
-                className="flex items-center gap-2 rounded bg-gold-600 px-3 py-1.5 text-xs font-bold uppercase text-navy-950 transition-colors hover:bg-gold-500"
+                onClick={() => setFicha(null)}
+                className="text-xs text-slate-500 hover:text-white"
               >
-                <Download size={14} /> Emitir Certidão Oficial
+                Limpar Busca
               </button>
             </div>
-            <FichaPublicaCard ficha={ficha} passaporteBuscado={ultimo} />
+            <FichaPublicaCard ficha={ficha} />
+            
+            {/* BOTÃO DE CERTIDÃO NA HOME */}
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => {
+                  window.print();
+                }}
+                className="dce-btn-secondary !px-8 !py-3"
+              >
+                <FileCheck size={18} className="mr-2 text-gold-500" />
+                Emitir Certidão Oficial (Nada Consta / Histórico)
+              </button>
+            </div>
           </div>
         )}
         {!buscando && !ficha && !erro && (
