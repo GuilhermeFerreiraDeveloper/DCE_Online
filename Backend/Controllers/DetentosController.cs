@@ -16,7 +16,7 @@ public class DetentosController : ControllerBase
 
     public DetentosController(DetentoService svc) => _svc = svc;
 
-    private int OficialId => User.OficialId() ?? throw AppException.NaoAutorizado("Sessão inválida.");
+    private int OficialId => User.GetId();
 
     /// <summary>Lista os detentos, com filtro instantâneo por nome ou passaporte.</summary>
     [HttpGet]
@@ -46,7 +46,7 @@ public class DetentosController : ControllerBase
     /// <summary>Registra a entrada de um detento (cálculo dos totais no servidor).</summary>
     [HttpPost]
     public async Task<ActionResult<DetentoDto>> Criar([FromBody] CriarDetentoRequest req)
-        => Ok(await _svc.CriarAsync(req, OficialId, User.Nome()));
+        => Ok(await _svc.CriarAsync(req, OficialId, User.GetNome()));
 
     /// <summary>Edita a ficha do detento (Nível 1 e 2).</summary>
     [HttpPut("{id:int}")]
@@ -73,7 +73,7 @@ public class DetentosController : ControllerBase
     [HttpPost("{id:int}/comportamento")]
     [Authorize(Policy = "Oficialidade")]
     public async Task<ActionResult<HistoricoComportamentoDto>> Comportamento(int id, [FromBody] RegistrarComportamentoRequest req)
-        => Ok(await _svc.RegistrarComportamentoAsync(id, req, OficialId, User.Nome()));
+        => Ok(await _svc.RegistrarComportamentoAsync(id, req, OficialId, User.GetNome()));
 
     [HttpGet("{id:int}/historico")]
     public async Task<ActionResult<List<HistoricoComportamentoDto>>> Historico(int id)

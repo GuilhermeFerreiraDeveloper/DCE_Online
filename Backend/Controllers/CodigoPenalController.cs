@@ -24,7 +24,7 @@ public class CodigoPenalController : ControllerBase
         _auditoria = auditoria;
     }
 
-    private int OperadorId => User.OficialId() ?? throw AppException.NaoAutorizado("Sessão inválida.");
+    private int OperadorId => User.GetId();
 
     [HttpGet]
     public async Task<ActionResult<List<CodigoPenalArtigo>>> Listar()

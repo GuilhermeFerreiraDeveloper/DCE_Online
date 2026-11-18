@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<ActionResult<OficialDto>> Me()
     {
-        var id = User.OficialId() ?? throw AppException.NaoAutorizado("Sessão inválida.");
+        var id = User.GetId();
         var dto = await _auth.MeAsync(id);
         return dto is null ? throw AppException.NaoEncontrado("Oficial não encontrado.") : Ok(dto);
     }
@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<ActionResult<OkResponse>> AlterarSenha([FromBody] AlterarSenhaRequest req)
     {
-        var id = User.OficialId() ?? throw AppException.NaoAutorizado("Sessão inválida.");
+        var id = User.GetId();
         await _auth.AlterarSenhaAsync(id, req);
         return Ok(new OkResponse());
     }
@@ -52,7 +52,7 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<ActionResult<OficialDto>> AtualizarPerfil([FromBody] AtualizarPerfilRequest req)
     {
-        var id = User.OficialId() ?? throw AppException.NaoAutorizado("Sessão inválida.");
+        var id = User.GetId();
         return Ok(await _auth.AtualizarPerfilAsync(id, req));
     }
 }
