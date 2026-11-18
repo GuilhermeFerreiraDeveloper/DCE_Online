@@ -24,11 +24,18 @@ public class ChatController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ChatMessageDto>>> GetMessages()
     {
-        // Limpeza automática: mantém apenas mensagens do dia atual (UTC)
+        // Limpeza automática: mantém apenas mensagens das últimas 24h ou do dia atual
         var hoje = DateTime.UtcNow.Date;
         
+        // Remove mensagens antigas antes de retornar
+        var antigas = _context.ChatMensagens.Where(m => m.DataEnvio < hoje);
+        if (antigas.Any())
+        {
+            _context.ChatMensagens.RemoveRange(antigas);
+            await _context.SaveChangesAsync();
+        }
+
         var mensagens = await _context.ChatMensagens
-            .Where(m => m.DataEnvio >= hoje)
             .OrderBy(m => m.DataEnvio)
             .ToListAsync();
 

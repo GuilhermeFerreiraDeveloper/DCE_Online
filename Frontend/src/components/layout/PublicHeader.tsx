@@ -28,7 +28,7 @@ export function PublicHeader() {
           </NavLink>
           <NavLink to="/cadastro" className="dce-btn-primary">
             <UserPlus size={16} />
-            Solicitar Cadastro
+            Concurso / Edital
           </NavLink>
         </nav>
 
@@ -36,7 +36,7 @@ export function PublicHeader() {
           <NavLink to="/login" className="dce-btn-secondary !px-3" aria-label="Entrar">
             <LogIn size={16} />
           </NavLink>
-          <NavLink to="/cadastro" className="dce-btn-primary !px-3" aria-label="Solicitar cadastro">
+          <NavLink to="/edital" className="dce-btn-primary !px-3" aria-label="Concurso / Edital">
             <UserPlus size={16} />
           </NavLink>
         </nav>
