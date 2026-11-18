@@ -80,56 +80,61 @@ export default function Home() {
       <DemoBanner />
 
       {/* HERO */}
-      <section className="relative overflow-hidden border-b border-white/5">
-        <div className="dce-grid-bg absolute inset-0 opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-navy-950/40 to-navy-950" />
-        <div className="relative mx-auto max-w-5xl px-4 py-14 text-center sm:px-6 sm:py-20">
-          <Link to="/" className="dce-tag group stagger-1 mx-auto animate-fade-up border-gold-500/40 bg-gold-500/10 text-gold-300 transition-all duration-300 hover:scale-105">
-            <img 
-              src="/DCELOGO.png" 
-              alt="DCE Logo" 
-              className="h-4 w-4 object-contain transition-transform duration-300 group-hover:scale-125" 
-            />
+      <section className="relative overflow-hidden border-b border-white/5 py-16 sm:py-24">
+        <div className="dce-grid-bg absolute inset-0 opacity-20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/50 via-navy-950/80 to-navy-950" />
+        
+        <div className="relative mx-auto max-w-5xl px-4 text-center">
+          <div className="stagger-1 mx-auto mb-8 flex w-fit animate-fade-up items-center gap-2 rounded-full border border-gold-500/30 bg-gold-500/5 px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-gold-400">
+            <img src="/DCELOGO.png" alt="" className="h-4 w-4 object-contain" />
             Sistema Oficial de Custódia · GTA RP
-          </Link>
-          <h1 className="stagger-2 mt-6 animate-fade-up text-balance font-display text-4xl font-bold uppercase leading-tight tracking-wide text-white sm:text-6xl">
+          </div>
+
+          <h1 className="stagger-2 animate-fade-up font-display text-5xl font-extrabold uppercase leading-[0.9] tracking-tighter text-white sm:text-8xl">
             Departamento de Custódia
-            <span className="block text-gold-400">do Estado</span>
+            <span className="mt-2 block text-gold-400">do Estado</span>
           </h1>
-          <p className="stagger-3 mx-auto mt-5 max-w-2xl animate-fade-up text-balance text-sm text-slate-400 sm:text-base">
-            Consulta pública de fichas criminais, gestão penitenciária e controle disciplinar. Digite o Passaporte/ID
-            para verificar os antecedentes de um cidadão.
+
+          <p className="stagger-3 mx-auto mt-8 max-w-2xl animate-fade-up text-balance text-slate-400 sm:text-lg">
+            Consulta pública de fichas criminais, gestão penitenciária e controle disciplinar. 
+            Digite o Passaporte/ID para verificar os antecedentes de um cidadão.
           </p>
 
-          {/* BARRA DE CONSULTA */}
-          <form
-            onSubmit={consultar}
-            className="stagger-4 mx-auto mt-8 flex w-full max-w-2xl animate-fade-up flex-col gap-3 sm:flex-row"
-          >
-            <div className="relative flex-1">
-              <Fingerprint size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-400/80" />
-              <input
-                value={passaporte}
-                onChange={(e) => setPassaporte(e.target.value)}
-                inputMode="numeric"
-                placeholder="Digite o Passaporte / ID do cidadão"
-                aria-label="Passaporte ou ID do cidadão"
-                className="dce-input !py-3.5 pl-10 font-mono text-base"
-              />
-            </div>
-            <button type="submit" disabled={buscando} className="dce-btn-primary !px-6 !py-3.5">
-              <FileSearch size={18} />
-              {buscando ? 'Consultando' : 'Consultar Ficha'}
-            </button>
-          </form>
+          {/* BUSCA ESTILIZADA */}
+          <div className="stagger-4 mx-auto mt-12 max-w-2xl animate-fade-up">
+            <form onSubmit={consultar} className="group relative flex flex-col gap-3 sm:flex-row">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-5 text-gold-500/40 transition-colors group-focus-within:text-gold-500">
+                  <Fingerprint size={24} />
+                </div>
+                <input
+                  type="text"
+                  value={passaporte}
+                  onChange={(e) => setPassaporte(e.target.value)}
+                  placeholder="Digite o Passaporte / ID do cidadão"
+                  className="h-16 w-full rounded-xl border border-white/10 bg-navy-900/50 pl-14 pr-6 text-lg text-white placeholder-slate-500 outline-none transition-all focus:border-gold-500/50 focus:bg-navy-900/80 focus:ring-4 focus:ring-gold-500/10"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={buscando}
+                className="flex h-16 items-center justify-center gap-3 rounded-xl bg-gold-500 px-8 font-display text-lg font-bold uppercase tracking-wider text-navy-950 transition-all hover:scale-[1.02] hover:bg-gold-400 active:scale-[0.98] disabled:opacity-50"
+              >
+                {buscando ? <Spinner size={24} /> : <FileSearch size={24} />}
+                Consultar Ficha
+              </button>
+            </form>
 
-          <div className="stagger-5 mt-5 flex animate-fade-up flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link to="/login" className="dce-btn-secondary">
-              <Lock size={16} /> Entrar (Login de Oficiais)
-            </Link>
-            <Link to="/edital" className="dce-btn-ghost">
-              <UserPlus size={16} /> Concurso / Edital DCE
-            </Link>
+            <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm font-medium">
+              <Link to="/login" className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/5 px-4 py-2 text-slate-300 transition-colors hover:bg-white/10 hover:text-white">
+                <Lock size={16} className="text-gold-500" />
+                Entrar (Login de Oficiais)
+              </Link>
+              <Link to="/edital" className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/5 px-4 py-2 text-slate-300 transition-colors hover:bg-white/10 hover:text-white">
+                <UserPlus size={16} className="text-gold-500" />
+                Concurso / Edital DCE
+              </Link>
+            </div>
           </div>
         </div>
       </section>

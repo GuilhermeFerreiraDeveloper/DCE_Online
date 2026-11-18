@@ -22,11 +22,11 @@ export function PublicHeader() {
         </Link>
 
         <nav className="hidden items-center gap-2 sm:flex">
-          <NavLink to="/login" className="dce-btn-secondary">
+          <NavLink to="/login" className="dce-btn-secondary uppercase tracking-wider font-semibold">
             <LogIn size={16} />
             Entrar
           </NavLink>
-          <NavLink to="/cadastro" className="dce-btn-primary">
+          <NavLink to="/edital" className="dce-btn-primary uppercase tracking-wider font-bold">
             <UserPlus size={16} />
             Concurso / Edital
           </NavLink>
