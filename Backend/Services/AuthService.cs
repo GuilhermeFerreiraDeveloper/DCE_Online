@@ -23,8 +23,9 @@ public class AuthService
         var ident = req.Identificador.Trim();
         var identLower = ident.ToLowerInvariant();
 
-        var oficial = await _db.Oficiais.FirstOrDefaultAsync(o =>
-            o.Passaporte == ident || o.Email.ToLower() == identLower);
+        var oficial = await _db.Oficiais
+            .Include(o => o.Medalhas)
+            .FirstOrDefaultAsync(o => o.Passaporte == ident || o.Email.ToLower() == identLower);
 
         // Mesma mensagem para usuário inexistente e senha errada (evita enumeração de contas).
         if (oficial is null || !BCrypt.Net.BCrypt.Verify(req.Senha, oficial.SenhaHash))
@@ -75,7 +76,10 @@ public class AuthService
 
     public async Task<OficialDto?> MeAsync(int oficialId)
     {
-        var oficial = await _db.Oficiais.FindAsync(oficialId);
+        var oficial = await _db.Oficiais
+            .Include(o => o.Medalhas)
+            .FirstOrDefaultAsync(o => o.Id == oficialId);
+            
         return oficial is null ? null : DtoMapper.ParaDto(oficial);
     }
 

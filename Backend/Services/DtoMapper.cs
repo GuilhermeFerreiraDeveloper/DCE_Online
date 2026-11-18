@@ -21,7 +21,7 @@ public static class DtoMapper
         RespostasEdital = o.RespostasEdital,
         DivisaoPretendida = o.DivisaoPretendida,
         CriadoEm = o.CriadoEm,
-        Medalhas = o.Medalhas.Select(ParaDto).ToList()
+        Medalhas = o.Medalhas?.Select(ParaDto).ToList() ?? new List<MedalhaDto>()
     };
 
     public static AvisoDto ParaDto(Aviso a) => new(
