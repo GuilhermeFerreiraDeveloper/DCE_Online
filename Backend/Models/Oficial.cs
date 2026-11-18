@@ -42,9 +42,17 @@ public class Oficial
 
     public int? AprovadoPor { get; set; }
 
+    /// <summary>Respostas do questionário de recrutamento (JSON/Texto).</summary>
+    public string? RespostasEdital { get; set; }
+
+    /// <summary>Divisão pretendida pelo candidato.</summary>
+    public string? DivisaoPretendida { get; set; }
+
     public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
 
     // Navegação
     public ICollection<Detento> DetentosRegistrados { get; set; } = new List<Detento>();
     public ICollection<HistoricoComportamento> RegistrosDisciplinares { get; set; } = new List<HistoricoComportamento>();
+    public ICollection<MedalhaOficial> Medalhas { get; set; } = new List<MedalhaOficial>();
+    public ICollection<RegistroPonto> RegistrosPonto { get; set; } = new List<RegistroPonto>();
 }

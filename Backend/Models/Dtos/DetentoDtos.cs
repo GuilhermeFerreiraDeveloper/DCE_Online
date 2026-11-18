@@ -13,6 +13,8 @@ public class DetentoDto
     public decimal ValorMultaTotal { get; set; }
     public bool ExigeTornozeleira { get; set; }
     public bool PermiteFianca { get; set; }
+    public decimal? Recompensa { get; set; }
+    public bool DestaqueProcurado { get; set; }
     public StatusPrisao StatusPrisao { get; set; }
     public string? PolicialCondutor { get; set; }
     public int? OficialRegistrouId { get; set; }

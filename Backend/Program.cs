@@ -52,6 +52,7 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AuditoriaService>();
 builder.Services.AddScoped<DetentoService>();
+builder.Services.AddHostedService<ChatCleanupService>();
 
 // ------------------------------ Autenticação JWT ------------------------------
 var jwtKey = config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key não configurada.");

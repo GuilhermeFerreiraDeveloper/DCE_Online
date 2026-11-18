@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
-import { Camera, ClipboardPaste, KeyRound, Save, Trash2, Upload, UserCog } from 'lucide-react'
+import { Camera, ClipboardPaste, KeyRound, Save, Trash2, Upload, UserCog, Award } from 'lucide-react'
 import { Field } from '@/components/ui/Field'
 import { InlineError, InlineSuccess } from '@/components/ui/Feedback'
 import { dceApi } from '@/services/api'
 import { useAuthStore } from '@/store/auth'
-import { iniciais } from '@/utils/format'
+import { iniciais, formatDateTime } from '@/utils/format'
 
 export default function MinhaConta() {
   const oficial = useAuthStore((s) => s.oficial)
@@ -233,6 +233,42 @@ export default function MinhaConta() {
             </button>
           </form>
         </section>
+      </div>
+
+      {/* CONDECORAÇÕES */}
+      <div className="dce-panel p-6">
+        <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase text-white">
+          <Award size={20} className="text-gold-400" /> Medalhas e Condecorações
+        </h2>
+        <p className="mt-1 text-xs text-slate-500">Reconhecimento oficial por serviços prestados ao DCE.</p>
+        
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {oficial.medalhas && oficial.medalhas.length > 0 ? (
+            oficial.medalhas.map(m => (
+              <div key={m.id} className="relative overflow-hidden rounded-lg border border-gold-500/10 bg-gold-500/5 p-4 transition hover:border-gold-500/30">
+                <div className="flex items-start gap-3">
+                  <div className="grid h-10 w-10 place-items-center rounded-full bg-navy-950 text-gold-400 shadow-inner">
+                    <Award size={24} />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="truncate text-sm font-bold text-white">{m.nomeMedalha}</h3>
+                    <p className="mt-1 text-[10px] leading-relaxed text-slate-400 line-clamp-2">{m.descricao}</p>
+                    <div className="mt-2 text-[9px] uppercase tracking-tighter text-gold-500/80">
+                      Concedido por: {m.concedidoPorNome}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 border-t border-gold-500/10 pt-2 text-[8px] text-slate-500">
+                  {formatDateTime(m.dataConcessao)}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full py-8 text-center text-sm text-slate-500">
+              Nenhuma condecoração registrada até o momento.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -5,9 +5,13 @@ import {
   Ban,
   CalendarClock,
   CircleDollarSign,
+  FilePlus2,
+  FileSearch,
+  Fingerprint,
   Gavel,
   History,
   Pencil,
+  Printer,
   ScrollText,
   Trash2,
   UserCog,
@@ -25,6 +29,7 @@ import { Modal } from '@/components/ui/Modal'
 import { RegistrarOcorrenciaModal } from '@/components/detento/RegistrarOcorrenciaModal'
 import { BaixaModal } from '@/components/detento/BaixaModal'
 import { EditarFichaModal } from '@/components/detento/EditarFichaModal'
+import { DocumentoModal } from '@/components/detento/DocumentoModal'
 import { TimelineDisciplinar } from '@/components/detento/TimelineDisciplinar'
 import { dceApi } from '@/services/api'
 import { useAuthStore } from '@/store/auth'
@@ -48,6 +53,7 @@ export default function DetentoDetalhe() {
   const [baixaAberta, setBaixaAberta] = useState(false)
   const [editarAberta, setEditarAberta] = useState(false)
   const [excluirAberto, setExcluirAberto] = useState(false)
+  const [docAberto, setDocAberto] = useState(false)
   const [excluindo, setExcluindo] = useState(false)
 
   const nivel = oficial?.nivelAcesso ?? 3
@@ -148,6 +154,9 @@ export default function DetentoDetalhe() {
       <div className="flex flex-wrap gap-2">
         <button onClick={() => setOcorrenciaAberta(true)} className="dce-btn-secondary">
           <Gavel size={16} /> Registrar Ocorrência
+        </button>
+        <button onClick={() => setDocAberto(true)} className="dce-btn-secondary">
+          <Printer size={16} /> Gerar Documento
         </button>
         {podeEditar && (
           <button onClick={() => setEditarAberta(true)} className="dce-btn-secondary">
@@ -276,6 +285,12 @@ export default function DetentoDetalhe() {
         onSalvo={carregar}
       />
       <BaixaModal detento={detento} aberto={baixaAberta} onFechar={() => setBaixaAberta(false)} onSalvo={carregar} />
+      <DocumentoModal
+        detento={detento}
+        aberto={docAberto}
+        onFechar={() => setDocAberto(false)}
+        oficial={oficial}
+      />
 
       <Modal
         aberto={excluirAberto}

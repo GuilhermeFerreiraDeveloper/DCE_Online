@@ -18,8 +18,52 @@ public static class DtoMapper
         NivelAcesso = o.NivelAcesso,
         StatusConta = o.StatusConta,
         AprovadoPor = o.AprovadoPor,
+        RespostasEdital = o.RespostasEdital,
+        DivisaoPretendida = o.DivisaoPretendida,
         CriadoEm = o.CriadoEm,
+        Medalhas = o.Medalhas.Select(ParaDto).ToList()
     };
+
+    public static AvisoDto ParaDto(Aviso a) => new(
+        a.Id,
+        a.AutorId,
+        a.Autor?.Nome ?? "Desconhecido",
+        a.Autor?.Patente ?? "Recruta",
+        a.Titulo,
+        a.Mensagem,
+        a.ImagemUrl,
+        a.NivelUrgencia.ToString(),
+        a.DataCriacao
+    );
+
+    public static ChatMessageDto ParaDto(ChatMessage c) => new(
+        c.Id,
+        c.OficialId,
+        c.NomeOficial,
+        c.Patente,
+        c.Mensagem,
+        c.DataEnvio
+    );
+
+    public static MedalhaDto ParaDto(MedalhaOficial m) => new(
+        m.Id,
+        m.NomeMedalha,
+        m.Descricao,
+        m.Icone,
+        m.DataConcessao,
+        m.ConcedidoPor?.Nome ?? "Comando",
+        m.ConcedidoPor?.Patente ?? "Comando"
+    );
+
+    public static RegistroPontoDto ParaDto(RegistroPonto p) => new(
+        p.Id,
+        p.OficialId,
+        p.Oficial?.Nome ?? "Desconhecido",
+        p.Oficial?.Patente ?? "Recruta",
+        p.Entrada,
+        p.Saida,
+        p.DuracaoMinutos
+    );
 
     public static HistoricoComportamentoDto ParaDto(HistoricoComportamento h) => new()
     {
@@ -64,6 +108,8 @@ public static class DtoMapper
             ValorMultaTotal = d.ValorMultaTotal,
             ExigeTornozeleira = d.ExigeTornozeleira,
             PermiteFianca = d.PermiteFianca,
+            Recompensa = d.Recompensa,
+            DestaqueProcurado = d.DestaqueProcurado,
             StatusPrisao = d.StatusPrisao,
             PolicialCondutor = d.PolicialCondutor,
             OficialRegistrouId = d.OficialRegistrouId,
@@ -76,4 +122,13 @@ public static class DtoMapper
             TerminoSolitaria = emSolitaria ? ultimo!.TerminoSolitaria : null,
         };
     }
+
+    public static ForagidoDto ParaForagidoDto(Detento d) => new(
+        d.Id,
+        d.PassaporteDetento,
+        d.NomeDetento,
+        d.FotoUrl,
+        d.CrimesCometidos.Select(c => c.Crime).ToList(),
+        d.Recompensa
+    );
 }

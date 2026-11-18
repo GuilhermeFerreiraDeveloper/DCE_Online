@@ -73,6 +73,34 @@ public class OficiaisController : ControllerBase
         return Ok(DtoMapper.ParaDto(oficial));
     }
 
+    [HttpPost("{id:int}/medalhas")]
+    public async Task<ActionResult<MedalhaDto>> ConcederMedalha(int id, [FromBody] ConcederMedalhaDto dto)
+    {
+        var oficial = await _db.Oficiais.FindAsync(id)
+            ?? throw AppException.NaoEncontrado("Oficial não encontrado.");
+
+        var medalha = new MedalhaOficial
+        {
+            OficialId = id,
+            ConcedidoPorId = OperadorId,
+            NomeMedalha = dto.NomeMedalha,
+            Descricao = dto.Descricao,
+            Icone = dto.Icone,
+            DataConcessao = DateTime.UtcNow
+        };
+
+        _db.MedalhasOficiais.Add(medalha);
+        await _db.SaveChangesAsync();
+
+        _auditoria.Registrar(OperadorId, "CONCESSAO_MEDALHA", "oficiais", id, $"Concedeu a medalha {dto.NomeMedalha} para {oficial.Nome}.");
+        await _db.SaveChangesAsync();
+
+        // Recarrega para incluir os dados de navegação no DTO
+        await _db.Entry(medalha).Reference(m => m.ConcedidoPor).LoadAsync();
+
+        return Ok(DtoMapper.ParaDto(medalha));
+    }
+
     /// <summary>Recusa e remove a solicitação de cadastro pendente.</summary>
     [HttpPost("{id:int}/recusar")]
     public async Task<ActionResult<OkResponse>> Recusar(int id)

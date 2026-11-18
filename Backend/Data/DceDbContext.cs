@@ -17,6 +17,10 @@ public class DceDbContext : DbContext
     public DbSet<Detento> Detentos => Set<Detento>();
     public DbSet<HistoricoComportamento> HistoricoComportamento => Set<HistoricoComportamento>();
     public DbSet<LogAuditoria> LogsAuditoria => Set<LogAuditoria>();
+    public DbSet<Aviso> Avisos => Set<Aviso>();
+    public DbSet<ChatMessage> ChatMensagens => Set<ChatMessage>();
+    public DbSet<MedalhaOficial> MedalhasOficiais => Set<MedalhaOficial>();
+    public DbSet<RegistroPonto> RegistrosPonto => Set<RegistroPonto>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -40,6 +44,8 @@ public class DceDbContext : DbContext
                 .HasConversion(v => DbEnum.ToDb(v), v => DbEnum.ContaFromDb(v))
                 .IsRequired();
             e.Property(x => x.AprovadoPor).HasColumnName("aprovado_por");
+            e.Property(x => x.RespostasEdital).HasColumnName("respostas_edital");
+            e.Property(x => x.DivisaoPretendida).HasColumnName("divisao_pretendida").HasMaxLength(100);
             e.Property(x => x.CriadoEm).HasColumnName("criado_em").IsRequired();
 
             e.HasIndex(x => x.Passaporte).IsUnique();
@@ -82,6 +88,8 @@ public class DceDbContext : DbContext
             e.Property(x => x.ValorMultaTotal).HasColumnName("valor_multa_total").HasColumnType("numeric(12,2)").IsRequired();
             e.Property(x => x.ExigeTornozeleira).HasColumnName("exige_tornozeleira").IsRequired();
             e.Property(x => x.PermiteFianca).HasColumnName("permite_fianca").IsRequired();
+            e.Property(x => x.Recompensa).HasColumnName("recompensa").HasColumnType("numeric(12,2)");
+            e.Property(x => x.DestaqueProcurado).HasColumnName("destaque_procurado").HasDefaultValue(false);
             e.Property(x => x.StatusPrisao)
                 .HasColumnName("status_prisao")
                 .HasMaxLength(20)
@@ -155,6 +163,88 @@ public class DceDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(x => x.OficialId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // --------------------------------- avisos --------------------------------
+        b.Entity<Aviso>(e =>
+        {
+            e.ToTable("avisos");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.AutorId).HasColumnName("autor_id").IsRequired();
+            e.Property(x => x.Titulo).HasColumnName("titulo").HasMaxLength(200).IsRequired();
+            e.Property(x => x.Mensagem).HasColumnName("mensagem").IsRequired();
+            e.Property(x => x.ImagemUrl).HasColumnName("imagem_url");
+            e.Property(x => x.NivelUrgencia)
+                .HasColumnName("nivel_urgencia")
+                .HasMaxLength(20)
+                .HasConversion(v => DbEnum.ToDb(v), v => DbEnum.UrgenciaFromDb(v))
+                .IsRequired();
+            e.Property(x => x.DataCriacao).HasColumnName("data_criacao").IsRequired();
+
+            e.HasOne(x => x.Autor)
+                .WithMany()
+                .HasForeignKey(x => x.AutorId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ---------------------------- chat_mensagens -----------------------------
+        b.Entity<ChatMessage>(e =>
+        {
+            e.ToTable("chat_mensagens");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.OficialId).HasColumnName("oficial_id").IsRequired();
+            e.Property(x => x.NomeOficial).HasColumnName("nome_oficial").HasMaxLength(120).IsRequired();
+            e.Property(x => x.Patente).HasColumnName("patente").HasMaxLength(60).IsRequired();
+            e.Property(x => x.Mensagem).HasColumnName("mensagem").IsRequired();
+            e.Property(x => x.DataEnvio).HasColumnName("data_envio").IsRequired();
+
+            e.HasOne(x => x.Oficial)
+                .WithMany()
+                .HasForeignKey(x => x.OficialId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // --------------------------- medalhas_oficiais ---------------------------
+        b.Entity<MedalhaOficial>(e =>
+        {
+            e.ToTable("medalhas_oficiais");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.OficialId).HasColumnName("oficial_id").IsRequired();
+            e.Property(x => x.ConcedidoPorId).HasColumnName("concedido_por_id").IsRequired();
+            e.Property(x => x.NomeMedalha).HasColumnName("nome_medalha").HasMaxLength(100).IsRequired();
+            e.Property(x => x.Descricao).HasColumnName("descricao").IsRequired();
+            e.Property(x => x.Icone).HasColumnName("icone");
+            e.Property(x => x.DataConcessao).HasColumnName("data_concessao").IsRequired();
+
+            e.HasOne(x => x.Oficial)
+                .WithMany(o => o.Medalhas)
+                .HasForeignKey(x => x.OficialId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(x => x.ConcedidoPor)
+                .WithMany()
+                .HasForeignKey(x => x.ConcedidoPorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ---------------------------- registros_ponto ----------------------------
+        b.Entity<RegistroPonto>(e =>
+        {
+            e.ToTable("registros_ponto");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.OficialId).HasColumnName("oficial_id").IsRequired();
+            e.Property(x => x.Entrada).HasColumnName("entrada").IsRequired();
+            e.Property(x => x.Saida).HasColumnName("saida");
+            e.Property(x => x.DuracaoMinutos).HasColumnName("duracao_minutos");
+
+            e.HasOne(x => x.Oficial)
+                .WithMany(o => o.RegistrosPonto)
+                .HasForeignKey(x => x.OficialId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 

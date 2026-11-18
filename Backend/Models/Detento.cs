@@ -32,6 +32,11 @@ public class Detento
 
     public bool PermiteFianca { get; set; } = true;
 
+    [Column(TypeName = "numeric(12,2)")]
+    public decimal? Recompensa { get; set; }
+
+    public bool DestaqueProcurado { get; set; } = false;
+
     public StatusPrisao StatusPrisao { get; set; } = StatusPrisao.EmCustodia;
 
     [MaxLength(120)]

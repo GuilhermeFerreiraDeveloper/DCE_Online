@@ -74,6 +74,16 @@ public static class DbEnum
         _ => throw new ArgumentOutOfRangeException(nameof(v), v, null),
     };
 
+    public static string ToDb(NivelUrgencia v) => v.ToString().ToUpper();
+
+    public static NivelUrgencia UrgenciaFromDb(string v) => v switch
+    {
+        "INFORMATIVO" => NivelUrgencia.INFORMATIVO,
+        "ALERTA" => NivelUrgencia.ALERTA,
+        "URGENTE" => NivelUrgencia.URGENTE,
+        _ => NivelUrgencia.INFORMATIVO
+    };
+
     /// <summary>
     /// Conversor do enum anulável <see cref="NivelPericulosidade"/> usado em
     /// colunas que podem ser nulas (detentos.nivel_periculosidade e

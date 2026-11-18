@@ -35,9 +35,13 @@ export default function Login() {
 
       <main className="mx-auto grid max-w-5xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:py-20">
         <div className="hidden flex-col justify-center lg:flex">
-          <span className="grid h-14 w-14 place-items-center rounded-lg border border-gold-500/40 bg-navy-900 text-gold-400">
-            <ShieldHalf size={26} />
-          </span>
+          <Link to="/" className="group w-fit transition-all duration-300 hover:scale-110">
+            <img 
+              src="/DCELOGO.png" 
+              alt="DCE Logo" 
+              className="h-16 w-16 object-contain transition-transform duration-300 group-hover:scale-110"
+            />
+          </Link>
           <h1 className="mt-6 font-display text-4xl font-bold uppercase leading-tight text-white">
             Acesso Restrito
             <span className="block text-gold-400">de Oficiais</span>

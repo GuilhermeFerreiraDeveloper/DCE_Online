@@ -104,22 +104,32 @@ export default function Aprovacoes() {
             <div key={o.id} className="dce-panel flex flex-col gap-3 p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="font-display text-lg text-white">{o.nome}</h3>
-                  <p className="font-mono text-xs text-slate-400">ID {o.passaporte}</p>
-                  <p className="text-xs text-slate-500">{o.email}</p>
+                  <h3 className="font-display text-lg font-bold text-white">{o.nome}</h3>
+                  <p className="text-xs text-slate-500">ID: {o.passaporte} · Email: {o.email}</p>
                 </div>
-                <StatusContaBadge status={o.statusConta} />
+                <div className="text-right">
+                  <p className="text-[10px] font-bold uppercase text-gold-400">Divisão Pretendida</p>
+                  <p className="text-xs font-bold text-white">{o.divisaoPretendida || 'Não informada'}</p>
+                </div>
               </div>
-              <p className="flex items-center gap-1.5 text-xs text-slate-500">
-                <Clock size={13} /> Solicitado em {formatDateTime(o.criadoEm)}
-              </p>
-              <div className="mt-auto flex gap-2 border-t border-white/5 pt-3">
-                <button onClick={() => abrirAprovacao(o)} className="dce-btn-primary flex-1 !py-2 text-xs">
-                  <Check size={15} /> Aprovar
-                </button>
-                <button onClick={() => recusar(o)} className="dce-btn-danger !py-2 text-xs">
-                  <X size={15} /> Recusar
-                </button>
+
+              {o.respostasEdital && (
+                <div className="mt-4 rounded bg-navy-950/50 p-3">
+                  <p className="mb-1 text-[10px] font-bold uppercase text-slate-500">Questionário de RP:</p>
+                  <p className="text-xs italic text-slate-400 leading-relaxed line-clamp-3">"{o.respostasEdital}"</p>
+                </div>
+              )}
+
+              <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3 text-[10px]">
+                <span className="text-slate-500">Solicitado em: {formatDateTime(o.criadoEm)}</span>
+                <div className="flex gap-2">
+                  <button onClick={() => recusar(o)} className="dce-btn-ghost !py-1 text-red-400 hover:!bg-red-500/10">
+                    <X size={14} /> Recusar
+                  </button>
+                  <button onClick={() => abrirAprovacao(o)} className="dce-btn-primary !py-1">
+                    <Check size={14} /> Analisar e Aprovar
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -129,8 +139,8 @@ export default function Aprovacoes() {
       <Modal
         aberto={!!selecionado}
         onFechar={() => setSelecionado(null)}
-        titulo="Aprovar Cadastro"
-        subtitulo={selecionado ? `${selecionado.nome} · ID ${selecionado.passaporte}` : ''}
+        titulo="Confirmar Aprovação"
+        subtitulo={selecionado?.nome}
         footer={
           <>
             <button onClick={() => setSelecionado(null)} className="dce-btn-ghost">
@@ -143,6 +153,12 @@ export default function Aprovacoes() {
         }
       >
         <div className="space-y-4">
+          {selecionado?.respostasEdital && (
+            <div className="mb-4 rounded border border-white/10 bg-navy-950 p-4">
+              <p className="mb-2 text-[10px] font-bold uppercase text-gold-400">Respostas do Edital</p>
+              <p className="text-xs text-slate-300 whitespace-pre-wrap">{selecionado.respostasEdital}</p>
+            </div>
+          )}
           <Field label="Nível de Acesso">
             <select value={nivel} onChange={(e) => setNivel(Number(e.target.value) as NivelAcesso)} className="dce-input">
               <option value={3}>Nível 3 — Praças e Graduações</option>

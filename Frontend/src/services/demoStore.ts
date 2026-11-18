@@ -9,6 +9,12 @@ import type {
   NivelPericulosidade,
   Oficial,
   VerificacaoPassaporte,
+  Aviso,
+  ChatMessage,
+  Medalha,
+  RegistroPonto,
+  RankingPonto,
+  Foragido,
 } from '@/types'
 import { gerarId } from '@/utils/format'
 import { calcularPena } from '@/utils/penal'
@@ -32,6 +38,10 @@ interface DemoDB {
   logs: LogAuditoria[]
   codigoPenal: CodigoPenalArtigo[]
   senhas: Record<string, string>
+  avisos: Aviso[]
+  chat: ChatMessage[]
+  ponto: RegistroPonto[]
+  medalhas: Medalha[]
 }
 
 const STORAGE_KEY = 'dce_demo_db_v1'
@@ -45,6 +55,10 @@ function seed(): DemoDB {
     logs: structuredClone(DEMO_LOGS),
     codigoPenal: structuredClone(DEMO_CODIGO_PENAL),
     senhas: { ...DEMO_SENHAS },
+    avisos: [],
+    chat: [],
+    ponto: [],
+    medalhas: [],
   }
 }
 
@@ -558,7 +572,7 @@ export async function demoListarAuditoria(): Promise<LogAuditoria[]> {
 }
 
 export async function demoEstatisticas(): Promise<Estatisticas> {
-  return delay({
+  const estatisticas: Estatisticas = {
     totalDetentos: db.detentos.length,
     emCustodia: db.detentos.filter((d) => d.statusPrisao === 'EM_CUSTODIA').length,
     liberados: db.detentos.filter((d) => d.statusPrisao === 'LIBERADO').length,
@@ -569,7 +583,135 @@ export async function demoEstatisticas(): Promise<Estatisticas> {
     oficiaisPendentes: db.oficiais.filter((o) => o.statusConta === 'PENDENTE').length,
     totalArtigos: db.codigoPenal.length,
     totalOcorrencias: db.historico.length,
-  })
+    solturasMes: 12, // Simulando
+    taxaReincidencia: 15.5, // Simulando
+  }
+  return delay(estatisticas)
+}
+
+// --- Mural de Avisos ---
+export function demoAvisos(): Promise<Aviso[]> {
+  return delay(db.avisos)
+}
+
+export function demoPostAviso(payload: {
+  titulo: string
+  mensagem: string
+  imagemUrl?: string
+  nivelUrgencia: string
+}): Promise<Aviso> {
+  const novo: Aviso = {
+    id: gerarId(),
+    autorId: 1,
+    autorNome: 'Comando Demo',
+    autorPatente: 'Diretor Geral',
+    titulo: payload.titulo,
+    mensagem: payload.mensagem,
+    imagemUrl: payload.imagemUrl ?? null,
+    nivelUrgencia: payload.nivelUrgencia as any,
+    dataCriacao: new Date().toISOString(),
+  }
+  db.avisos.unshift(novo)
+  persist()
+  return delay(novo)
+}
+
+// --- Chat ---
+export function demoChat(): Promise<ChatMessage[]> {
+  const hoje = new Date().toISOString().split('T')[0]
+  const mensagens = db.chat.filter((m) => m.dataEnvio.startsWith(hoje))
+  return delay(mensagens)
+}
+
+export function demoPostChatMessage(mensagem: string): Promise<ChatMessage> {
+  const novo: ChatMessage = {
+    id: gerarId(),
+    oficialId: 1,
+    nomeOficial: 'Oficial Demo',
+    patente: 'Agente',
+    mensagem,
+    dataEnvio: new Date().toISOString(),
+  }
+  db.chat.push(novo)
+  persist()
+  return delay(novo)
+}
+
+// --- Bate-Ponto ---
+export function demoIniciarPonto(): Promise<RegistroPonto> {
+  const novo: RegistroPonto = {
+    id: gerarId(),
+    oficialId: 1,
+    nomeOficial: 'Oficial Demo',
+    patente: 'Agente',
+    entrada: new Date().toISOString(),
+    saida: null,
+    duracaoMinutos: null,
+  }
+  db.ponto.push(novo)
+  persist()
+  return delay(novo)
+}
+
+export function demoEncerrarPonto(): Promise<RegistroPonto> {
+  const ponto = db.ponto.find((p) => p.oficialId === 1 && !p.saida)
+  if (!ponto) throw new Error('Nenhum ponto aberto')
+  ponto.saida = new Date().toISOString()
+  ponto.duracaoMinutos = Math.floor(
+    (new Date(ponto.saida).getTime() - new Date(ponto.entrada).getTime()) / 60000,
+  )
+  persist()
+  return delay(ponto)
+}
+
+export function demoPontoAtivos(): Promise<RegistroPonto[]> {
+  return delay(db.ponto.filter((p) => !p.saida))
+}
+
+export function demoPontoRanking(): Promise<RankingPonto[]> {
+  const ranking: RankingPonto[] = [
+    { oficialId: 1, nomeOficial: 'Oficial Demo', patente: 'Agente', totalMinutos: 1200, totalTurnos: 5 },
+  ]
+  return delay(ranking)
+}
+
+// --- Medalhas ---
+export function demoConcederMedalha(
+  oficialId: number,
+  payload: { nomeMedalha: string; descricao: string; icone?: string },
+): Promise<Medalha> {
+  const nova: Medalha = {
+    id: gerarId(),
+    nomeMedalha: payload.nomeMedalha,
+    descricao: payload.descricao,
+    icone: payload.icone ?? null,
+    dataConcessao: new Date().toISOString(),
+    concedidoPorNome: 'Comando Demo',
+    concedidoPorPatente: 'Diretor Geral',
+  }
+  const oficial = db.oficiais.find((o) => o.id === oficialId)
+  if (oficial) {
+    if (!oficial.medalhas) oficial.medalhas = []
+    oficial.medalhas.push(nova)
+  }
+  persist()
+  return delay(nova)
+}
+
+// --- Foragidos ---
+export function demoForagidos(): Promise<Foragido[]> {
+  const foragidos = db.detentos
+    .filter((d) => d.statusPrisao === 'FORAGIDO')
+    .slice(0, 5)
+    .map((d) => ({
+      id: d.id,
+      passaporte: d.passaporteDetento,
+      nome: d.nomeDetento,
+      fotoUrl: d.fotoUrl,
+      crimes: d.crimesCometidos.map((c) => c.crime),
+      recompensa: (d as any).recompensa ?? 5000,
+    }))
+  return delay(foragidos)
 }
 
 export class DemoError extends Error {

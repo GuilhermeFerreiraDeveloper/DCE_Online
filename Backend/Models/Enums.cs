@@ -31,3 +31,11 @@ public enum NivelPericulosidade
     Moderado,
     Alto,
 }
+
+/// <summary>Nível de urgência para avisos do comando.</summary>
+public enum NivelUrgencia
+{
+    INFORMATIVO,
+    ALERTA,
+    URGENTE
+}

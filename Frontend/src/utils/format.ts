@@ -17,6 +17,13 @@ export function formatDateTime(iso: string | null | undefined): string {
   })
 }
 
+export function formatTime(iso: string | Date | null | undefined): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+}
+
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) return '—'
   const d = new Date(iso)

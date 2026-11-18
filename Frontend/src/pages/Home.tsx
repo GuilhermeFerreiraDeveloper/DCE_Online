@@ -1,7 +1,10 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import {
+  AlertCircle,
   BookOpenCheck,
+  Download,
+  FileCheck,
   FileSearch,
   Fingerprint,
   Gavel,
@@ -16,7 +19,7 @@ import { DemoBanner } from '@/components/layout/DemoBanner'
 import { FichaPublicaCard } from '@/components/detento/FichaPublicaCard'
 import { InlineError, Spinner } from '@/components/ui/Feedback'
 import { dceApi } from '@/services/api'
-import type { FichaPublica } from '@/types'
+import type { FichaPublica, Foragido } from '@/types'
 
 const RECURSOS = [
   {
@@ -47,6 +50,11 @@ export default function Home() {
   const [ficha, setFicha] = useState<FichaPublica | null>(null)
   const [erro, setErro] = useState('')
   const [ultimo, setUltimo] = useState('')
+  const [foragidos, setForagidos] = useState<Foragido[]>([])
+
+  useEffect(() => {
+    dceApi.foragidos().then(setForagidos).catch(console.error)
+  }, [])
 
   const consultar = async (e: FormEvent) => {
     e.preventDefault()
@@ -76,9 +84,14 @@ export default function Home() {
         <div className="dce-grid-bg absolute inset-0 opacity-60" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-navy-950/40 to-navy-950" />
         <div className="relative mx-auto max-w-5xl px-4 py-14 text-center sm:px-6 sm:py-20">
-          <span className="dce-tag stagger-1 mx-auto animate-fade-up border-gold-500/40 bg-gold-500/10 text-gold-300">
-            <ShieldHalf size={13} /> Sistema Oficial de Custódia · GTA RP
-          </span>
+          <Link to="/" className="dce-tag group stagger-1 mx-auto animate-fade-up border-gold-500/40 bg-gold-500/10 text-gold-300 transition-all duration-300 hover:scale-105">
+            <img 
+              src="/DCELOGO.png" 
+              alt="DCE Logo" 
+              className="h-4 w-4 object-contain transition-transform duration-300 group-hover:scale-125" 
+            />
+            Sistema Oficial de Custódia · GTA RP
+          </Link>
           <h1 className="stagger-2 mt-6 animate-fade-up text-balance font-display text-4xl font-bold uppercase leading-tight tracking-wide text-white sm:text-6xl">
             Departamento de Custódia
             <span className="block text-gold-400">do Estado</span>
@@ -114,8 +127,8 @@ export default function Home() {
             <Link to="/login" className="dce-btn-secondary">
               <Lock size={16} /> Entrar (Login de Oficiais)
             </Link>
-            <Link to="/cadastro" className="dce-btn-ghost">
-              <UserPlus size={16} /> Solicitar Cadastro
+            <Link to="/edital" className="dce-btn-ghost">
+              <UserPlus size={16} /> Concurso / Edital DCE
             </Link>
           </div>
         </div>
@@ -125,7 +138,22 @@ export default function Home() {
       <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         {erro && <InlineError>{erro}</InlineError>}
         {buscando && <Spinner label="Consultando banco de dados penitenciário..." />}
-        {!buscando && ficha && <FichaPublicaCard ficha={ficha} passaporteBuscado={ultimo} />}
+        {!buscando && ficha && (
+          <div className="animate-fade-up">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-display text-lg font-bold uppercase tracking-tight text-white">
+                Resultado da Consulta
+              </h3>
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-2 rounded bg-gold-600 px-3 py-1.5 text-xs font-bold uppercase text-navy-950 transition-colors hover:bg-gold-500"
+              >
+                <Download size={14} /> Emitir Certidão Oficial
+              </button>
+            </div>
+            <FichaPublicaCard ficha={ficha} passaporteBuscado={ultimo} />
+          </div>
+        )}
         {!buscando && !ficha && !erro && (
           <p className="text-center text-sm text-slate-500">
             Os resultados da consulta aparecerão aqui. Nenhum dado pessoal é exposto sem consulta por ID.
@@ -150,6 +178,71 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* MAIS PROCURADOS */}
+      {foragidos.length > 0 && (
+        <section className="border-t border-white/5 bg-navy-950/50 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="mb-10 text-center">
+              <span className="dce-tag border-red-500/30 bg-red-500/10 text-red-400">
+                <AlertCircle size={13} /> Alerta de Segurança Máxima
+              </span>
+              <h2 className="mt-4 font-display text-3xl font-bold uppercase tracking-wider text-white">
+                Mais Procurados <span className="text-red-500">pelo DCE</span>
+              </h2>
+              <p className="mt-2 text-slate-400">Indivíduos com mandado de prisão ativo e alta periculosidade.</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+              {foragidos.map((f) => (
+                <div
+                  key={f.id}
+                  className="group relative overflow-hidden rounded-lg border border-white/5 bg-navy-900/50 p-4 transition-all hover:border-red-500/30"
+                >
+                  <div className="absolute right-2 top-2 z-10">
+                    <span className="rounded bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase text-white shadow-lg">
+                      Procurado
+                    </span>
+                  </div>
+
+                  <div className="aspect-[3/4] overflow-hidden rounded bg-black/40">
+                    {f.fotoUrl ? (
+                      <img
+                        src={f.fotoUrl}
+                        alt={f.nome}
+                        className="h-full w-full object-cover grayscale transition-all group-hover:grayscale-0"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-slate-700">
+                        <ScanFace size={48} />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 text-center">
+                    <h3 className="truncate font-display text-sm font-bold uppercase text-white">{f.nome}</h3>
+                    <p className="mt-1 text-xs text-slate-500">Passaporte: {f.passaporte}</p>
+
+                    {f.recompensa && (
+                      <div className="mt-3 rounded border border-gold-500/20 bg-gold-500/5 py-1 text-xs font-bold text-gold-400">
+                        RECOMPENSA: ${f.recompensa.toLocaleString()}
+                      </div>
+                    )}
+
+                    <div className="mt-3 flex flex-wrap justify-center gap-1">
+                      {f.crimes.slice(0, 2).map((c, i) => (
+                        <span key={i} className="rounded bg-navy-950 px-1.5 py-0.5 text-[9px] text-slate-400">
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <footer className="border-t border-white/5 bg-navy-900/50 px-4 py-6 text-center text-xs text-slate-500">
         <p className="font-display uppercase tracking-widest text-slate-400">Departamento de Custódia do Estado</p>

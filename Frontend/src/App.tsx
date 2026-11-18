@@ -5,6 +5,7 @@ import { RadioPlayer } from '@/components/layout/RadioPlayer'
 import Home from '@/pages/Home'
 import Login from '@/pages/Login'
 import Cadastro from '@/pages/Cadastro'
+import Edital from '@/pages/Edital'
 import Dashboard from '@/pages/Dashboard'
 import NovoDetento from '@/pages/NovoDetento'
 import DetentoDetalhe from '@/pages/DetentoDetalhe'
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
+        <Route path="/edital" element={<Edital />} />
 
         {/* Área logada */}
         <Route element={<ProtectedRoute />}>

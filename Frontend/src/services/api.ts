@@ -10,6 +10,12 @@ import type {
   NivelPericulosidade,
   Oficial,
   VerificacaoPassaporte,
+  Aviso,
+  ChatMessage,
+  Medalha,
+  RegistroPonto,
+  RankingPonto,
+  Foragido,
 } from '@/types'
 import { useConnectionStore } from '@/store/connection'
 import * as demo from './demoStore'
@@ -108,6 +114,25 @@ export const dceApi = {
     withFallback(
       () => http<FichaPublica>(`/public/ficha/${encodeURIComponent(passaporte)}`),
       () => demo.demoFichaPublica(passaporte),
+    ),
+
+  foragidos: (): Promise<Foragido[]> =>
+    withFallback(
+      () => http<Foragido[]>('/public/foragidos'),
+      () => demo.demoForagidos(),
+    ),
+
+  recrutamento: (payload: {
+    passaporte: string
+    nome: string
+    email: string
+    senha: string
+    respostasEdital: string
+    divisaoPretendida: string
+  }): Promise<{ message: string }> =>
+    withFallback(
+      () => http<{ message: string }>('/public/recrutamento', corpoJson(payload)),
+      () => Promise.resolve({ message: 'Candidatura enviada (Modo Demo)' }),
     ),
 
   // -------------------------------- Detentos -------------------------------
@@ -214,6 +239,15 @@ export const dceApi = {
       () => demo.demoAprovarOficial(id, dados, aprovador),
     ),
 
+  concederMedalha: (
+    oficialId: number,
+    payload: { nomeMedalha: string; descricao: string; icone?: string },
+  ): Promise<Medalha> =>
+    withFallback(
+      () => http<Medalha>(`/oficiais/${oficialId}/medalhas`, corpoJson(payload)),
+      () => demo.demoConcederMedalha(oficialId, payload),
+    ),
+
   recusarOficial: (id: number, aprovador: { id: number; nome: string }): Promise<{ ok: boolean }> =>
     withFallback(
       () => http<{ ok: boolean }>(`/oficiais/${id}/recusar`, { method: 'POST' }),
@@ -263,6 +297,62 @@ export const dceApi = {
     withFallback(
       () => http<{ ok: boolean }>(`/codigo-penal/${id}`, { method: 'DELETE' }),
       () => demo.demoExcluirArtigo(id, autor),
+    ),
+
+  // ----------------------------- Mural de Avisos -----------------------------
+  avisos: (): Promise<Aviso[]> =>
+    withFallback(
+      () => http<Aviso[]>('/avisos'),
+      () => demo.demoAvisos(),
+    ),
+
+  postAviso: (payload: {
+    titulo: string
+    mensagem: string
+    imagemUrl?: string
+    nivelUrgencia: string
+  }): Promise<Aviso> =>
+    withFallback(
+      () => http<Aviso>('/avisos', corpoJson(payload)),
+      () => demo.demoPostAviso(payload),
+    ),
+
+  // ----------------------------- Chat -----------------------------
+  chat: (): Promise<ChatMessage[]> =>
+    withFallback(
+      () => http<ChatMessage[]>('/chat'),
+      () => demo.demoChat(),
+    ),
+
+  postChatMessage: (mensagem: string): Promise<ChatMessage> =>
+    withFallback(
+      () => http<ChatMessage>('/chat', corpoJson({ mensagem })),
+      () => demo.demoPostChatMessage(mensagem),
+    ),
+
+  // ----------------------------- Bate-Ponto -----------------------------
+  iniciarPonto: (): Promise<RegistroPonto> =>
+    withFallback(
+      () => http<RegistroPonto>('/ponto/iniciar', { method: 'POST' }),
+      () => demo.demoIniciarPonto(),
+    ),
+
+  encerrarPonto: (): Promise<RegistroPonto> =>
+    withFallback(
+      () => http<RegistroPonto>('/ponto/encerrar', { method: 'POST' }),
+      () => demo.demoEncerrarPonto(),
+    ),
+
+  pontoAtivos: (): Promise<RegistroPonto[]> =>
+    withFallback(
+      () => http<RegistroPonto[]>('/ponto/ativos'),
+      () => demo.demoPontoAtivos(),
+    ),
+
+  pontoRanking: (): Promise<RankingPonto[]> =>
+    withFallback(
+      () => http<RankingPonto[]>('/ponto/ranking'),
+      () => demo.demoPontoRanking(),
     ),
 
   // ------------------------ Auditoria & Estatísticas ----------------------

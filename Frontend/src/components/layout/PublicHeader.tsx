@@ -1,14 +1,16 @@
 import { Link, NavLink } from 'react-router-dom'
-import { LogIn, ShieldHalf, UserPlus } from 'lucide-react'
+import { LogIn, UserPlus } from 'lucide-react'
 
 export function PublicHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/5 bg-navy-950/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link to="/" className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-md border border-gold-500/40 bg-navy-900 text-gold-400">
-            <ShieldHalf size={20} />
-          </span>
+        <Link to="/" className="group flex items-center gap-3 transition-all duration-300 hover:scale-105">
+          <img 
+            src="/DCELOGO.png" 
+            alt="DCE Logo" 
+            className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-110"
+          />
           <span className="leading-tight">
             <span className="block font-display text-lg font-semibold tracking-wide text-white">
               DEPARTAMENTO DE CUSTÓDIA

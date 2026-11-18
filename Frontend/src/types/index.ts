@@ -5,6 +5,7 @@ export type NivelAcesso = 1 | 2 | 3
 export type StatusPrisao = 'EM_CUSTODIA' | 'LIBERADO' | 'FORAGIDO'
 export type TipoRegistro = 'BOM_COMPORTAMENTO' | 'MAU_COMPORTAMENTO' | 'SOLITARIA'
 export type NivelPericulosidade = 'BAIXO' | 'MODERADO' | 'ALTO'
+export type NivelUrgencia = 'INFORMATIVO' | 'ALERTA' | 'URGENTE'
 
 export const PATENTES_NIVEL_2 = [
   'Coronel',
@@ -58,7 +59,68 @@ export interface Oficial {
   nivelAcesso: NivelAcesso
   statusConta: StatusConta
   aprovadoPor: number | null
+  respostasEdital?: string | null
+  divisaoPretendida?: string | null
   criadoEm: string
+  medalhas: Medalha[]
+}
+
+export interface Medalha {
+  id: number
+  nomeMedalha: string
+  descricao: string
+  icone: string | null
+  dataConcessao: string
+  concedidoPorNome: string
+  concedidoPorPatente: string
+}
+
+export interface Aviso {
+  id: number
+  autorId: number
+  autorNome: string
+  autorPatente: string
+  titulo: string
+  mensagem: string
+  imagemUrl: string | null
+  nivelUrgencia: NivelUrgencia
+  dataCriacao: string
+}
+
+export interface ChatMessage {
+  id: number
+  oficialId: number
+  nomeOficial: string
+  patente: string
+  mensagem: string
+  dataEnvio: string
+}
+
+export interface RegistroPonto {
+  id: number
+  oficialId: number
+  nomeOficial: string
+  patente: string
+  entrada: string
+  saida: string | null
+  duracaoMinutos: number | null
+}
+
+export interface RankingPonto {
+  oficialId: number
+  nomeOficial: string
+  patente: string
+  totalMinutos: number
+  totalTurnos: number
+}
+
+export interface Foragido {
+  id: number
+  passaporte: string
+  nome: string
+  fotoUrl: string | null
+  crimes: string[]
+  recompensa: number | null
 }
 
 export interface CodigoPenalArtigo {
@@ -94,6 +156,8 @@ export interface Detento {
   valorMultaTotal: number
   exigeTornozeleira: boolean
   permiteFianca: boolean
+  recompensa: number | null
+  destaqueProcurado: boolean
   statusPrisao: StatusPrisao
   policialCondutor: string | null
   oficialRegistrouId: number | null

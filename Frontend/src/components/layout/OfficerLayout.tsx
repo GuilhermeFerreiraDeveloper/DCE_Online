@@ -8,7 +8,6 @@ import {
   LogOut,
   Menu,
   ScrollText,
-  ShieldHalf,
   UserCheck,
   UserCog,
   Users,
@@ -17,6 +16,7 @@ import {
 import { useAuthStore } from '@/store/auth'
 import { Avatar } from '@/components/ui/Avatar'
 import { DemoBanner } from './DemoBanner'
+import { BatePontoWidget } from './BatePontoWidget'
 
 const NAV = [
   { to: '/painel', label: 'Painel de Presos', icon: LayoutDashboard, niveis: [1, 2, 3] },
@@ -49,15 +49,24 @@ export function OfficerLayout() {
 
   const SidebarContent = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 border-b border-white/5 px-5 py-4">
-        <span className="grid h-10 w-10 place-items-center rounded-md border border-gold-500/40 bg-navy-950 text-gold-400">
-          <ShieldHalf size={20} />
-        </span>
+      <Link 
+        to="/" 
+        className="group flex items-center gap-3 border-b border-white/5 px-5 py-4 transition-all duration-300 hover:scale-[1.02]"
+      >
+        <img 
+          src="/DCELOGO.png" 
+          alt="DCE Logo" 
+          className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-110"
+        />
         <span className="leading-tight">
-          <span className="block font-display text-base font-semibold tracking-wide text-white">DCE</span>
-          <span className="block text-[0.6rem] uppercase tracking-[0.28em] text-gold-400/80">Custódia do Estado</span>
+          <span className="block font-display text-base font-semibold tracking-wide text-white transition-colors group-hover:text-gold-400">
+            DCE
+          </span>
+          <span className="block text-[0.6rem] uppercase tracking-[0.28em] text-gold-400/80">
+            Custódia do Estado
+          </span>
         </span>
-      </div>
+      </Link>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {itens.map((item) => (
@@ -130,22 +139,44 @@ export function OfficerLayout() {
       <div className="flex min-w-0 flex-1 flex-col">
         <DemoBanner />
 
-        {/* Header mobile */}
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-white/5 bg-navy-950/85 px-4 py-3 backdrop-blur-md lg:hidden">
-          <button
-            onClick={() => setMenuAberto(true)}
-            className="rounded-md border border-white/10 p-2 text-slate-300 hover:border-gold-500/40 hover:text-white"
-            aria-label="Abrir menu"
-          >
-            <Menu size={18} />
-          </button>
-          <Link to="/painel" className="flex items-center gap-2">
-            <ShieldHalf size={18} className="text-gold-400" />
-            <span className="font-display text-sm font-semibold tracking-wide text-white">DCE · CUSTÓDIA</span>
-          </Link>
-          <button onClick={sair} className="rounded-md p-2 text-red-300 hover:bg-red-500/10" aria-label="Sair">
-            <LogOut size={18} />
-          </button>
+        {/* Header desktop/mobile */}
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-navy-950/85 px-4 backdrop-blur-md lg:px-8">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setMenuAberto(true)}
+              className="rounded-md border border-white/10 p-2 text-slate-300 hover:border-gold-500/40 hover:text-white lg:hidden"
+              aria-label="Abrir menu"
+            >
+              <Menu size={18} />
+            </button>
+            <div className="hidden lg:block">
+              <h2 className="font-display text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                Sistema de Gestão DCE
+              </h2>
+            </div>
+            <Link to="/" className="group flex items-center gap-2 lg:hidden transition-all duration-300 hover:scale-105">
+              <img 
+                src="/DCELOGO.png" 
+                alt="DCE Logo" 
+                className="h-7 w-7 object-contain transition-transform duration-300 group-hover:scale-110"
+              />
+              <span className="font-display text-sm font-semibold tracking-wide text-white group-hover:text-gold-400">
+                DCE · CUSTÓDIA
+              </span>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <BatePontoWidget />
+            <div className="hidden h-8 w-[1px] bg-white/5 sm:block" />
+            <div className="hidden text-right sm:block">
+              <p className="text-xs font-bold uppercase tracking-wide text-white">{oficial?.nome}</p>
+              <p className="text-[0.6rem] uppercase tracking-wider text-gold-400">{oficial?.patente}</p>
+            </div>
+            <button onClick={sair} className="rounded-md p-2 text-red-300 hover:bg-red-500/10 lg:hidden" aria-label="Sair">
+              <LogOut size={18} />
+            </button>
+          </div>
         </header>
 
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">

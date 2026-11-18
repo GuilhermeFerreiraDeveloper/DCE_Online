@@ -14,7 +14,10 @@ public class OficialDto
     public int NivelAcesso { get; set; }
     public StatusConta StatusConta { get; set; }
     public int? AprovadoPor { get; set; }
+    public string? RespostasEdital { get; set; }
+    public string? DivisaoPretendida { get; set; }
     public DateTime CriadoEm { get; set; }
+    public List<MedalhaDto> Medalhas { get; set; } = new();
 }
 
 public class AprovarOficialRequest

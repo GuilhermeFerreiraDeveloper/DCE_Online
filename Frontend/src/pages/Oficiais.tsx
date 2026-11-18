@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Lock, Pencil, ShieldHalf, Trash2, Unlock, Users } from 'lucide-react'
+import { Lock, Pencil, ShieldHalf, Trash2, Unlock, Users, Award } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
 import { Field } from '@/components/ui/Field'
 import { EmptyState, InlineError, Spinner } from '@/components/ui/Feedback'
@@ -29,6 +29,8 @@ export default function Oficiais() {
   const [busca, setBusca] = useState('')
   const [filtroDepto, setFiltroDepto] = useState('')
   const [editando, setEditando] = useState<Oficial | null>(null)
+  const [medalhando, setMedalhando] = useState<Oficial | null>(null)
+  const [medalhaForm, setMedalhaForm] = useState({ nomeMedalha: '', descricao: '', icone: '' })
   const [nivel, setNivel] = useState<NivelAcesso>(3)
   const [patente, setPatente] = useState<string>('')
   const [excluir, setExcluir] = useState<Oficial | null>(null)
@@ -87,6 +89,21 @@ export default function Oficiais() {
     await dceApi.excluirOficial(excluir.id, { id: autor.id, nome: autor.nome })
     setExcluir(null)
     await carregar()
+  }
+
+  const concederMedalha = async () => {
+    if (!medalhando || !autor) return
+    setSalvando(true)
+    try {
+      await dceApi.concederMedalha(medalhando.id, medalhaForm)
+      setMedalhando(null)
+      setMedalhaForm({ nomeMedalha: '', descricao: '', icone: '' })
+      await carregar()
+    } catch {
+      setErro('Não foi possível conceder a medalha.')
+    } finally {
+      setSalvando(false)
+    }
   }
 
   const termo = busca.trim().toLowerCase()
@@ -178,10 +195,17 @@ export default function Oficiais() {
                       <div className="flex justify-end gap-1">
                         <button
                           onClick={() => setEditando(o)}
-                          className="rounded p-2 text-slate-400 hover:bg-white/5 hover:text-white"
-                          title="Editar patente/nível"
+                          className="rounded-md border border-white/10 p-2 text-slate-400 hover:border-gold-500/40 hover:text-white"
+                          title="Editar Oficial"
                         >
                           <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => setMedalhando(o)}
+                          className="rounded-md border border-white/10 p-2 text-gold-400 hover:border-gold-500/40 hover:bg-gold-500/10"
+                          title="Conceder Medalha"
+                        >
+                          <Award size={15} />
                         </button>
                         <button
                           onClick={() => alternarBloqueio(o)}
@@ -241,6 +265,45 @@ export default function Oficiais() {
               ))}
             </select>
           </Field>
+        </div>
+      </Modal>
+
+      <Modal
+        aberto={!!medalhando}
+        onFechar={() => setMedalhando(null)}
+        titulo="Conceder Medalha"
+        subtitulo={`Oficial: ${medalhando?.nome}`}
+      >
+        <div className="space-y-4">
+          <Field label="Nome da Medalha">
+            <input
+              value={medalhaForm.nomeMedalha}
+              onChange={(e) => setMedalhaForm({ ...medalhaForm, nomeMedalha: e.target.value })}
+              className="dce-input"
+              placeholder="Ex: Medalha de Bravura Penitenciária"
+            />
+          </Field>
+          <Field label="Descrição da Concessão">
+            <textarea
+              value={medalhaForm.descricao}
+              onChange={(e) => setMedalhaForm({ ...medalhaForm, descricao: e.target.value })}
+              className="dce-input"
+              rows={3}
+              placeholder="Descreva o motivo da honraria..."
+            />
+          </Field>
+          <div className="flex justify-end gap-3 pt-4">
+            <button onClick={() => setMedalhando(null)} className="dce-btn-ghost">
+              Cancelar
+            </button>
+            <button
+              onClick={concederMedalha}
+              disabled={salvando || !medalhaForm.nomeMedalha || !medalhaForm.descricao}
+              className="dce-btn-primary"
+            >
+              {salvando ? 'Salvando...' : 'Conceder Honraria'}
+            </button>
+          </div>
         </div>
       </Modal>
 
